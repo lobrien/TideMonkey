@@ -1,0 +1,625 @@
+   [1]<- Previous [2]-> Next [3]Contents
+
+   [4]Prospect Harbor Pt. Light, Prospect Harbor, Maine, 1998-06-14
+
+Installation instructions for supported platforms
+
+  Assumptions
+
+   These installation instructions assume that you are building from
+   sources obtained from [5]http://www.flaterco.com/xtide/files.html.
+   However, some users may be able to shortcut this process:  binary
+   packages for some platforms are available under [6]contrib files.
+   (Thanks to the relevant package maintainers.)
+
+  Mandatory library dependencies
+
+   The "tested" versions of libraries cited below are merely the versions
+   that were demonstrated to work at the time of the last XTide release,
+   for information in case a compatibility issue arises.
+
+   In addition to the minimal set of X11 libraries that pretty much
+   everyone has, you need the following libraries:
+
+     * [7]libXpm (tested ver. 3.5.11)
+     * [8]zlib (a.k.a. libz), prerequisite of libpng (tested ver. 1.2.8)
+     * [9]libpng (tested ver. 1.6.13)
+     * [10]libtcd (tested ver. 2.2.6-r2)
+
+   The interactive client requires that the Schumacher fonts be installed
+   with X11.  These fonts are always included with the X11 distribution,
+   but their installation is frequently optional.
+
+   tide and xttpd can be compiled in the absence of X11 libraries and
+   libXpm.  However, you still need the other stuff.
+
+  Optional libraries
+
+   The configure script will look for Xaw3dXft, Xaw3d, or Xaw, in that
+   order.
+
+   [Xaw-sample.png]   Plain Athena Widgets (Xaw) (tested ver. 1.0.12 /
+   X11R7.7) can be forced using --disable-3d.
+   [Xaw3d-sample.png]   Xaw3d (tested ver. 1.6.2) is a fork from an old
+   version of Athena Widgets that offers improved scrollbars and a
+   different look for buttons.  Versions 1.6 through 1.6.2 appeared in Q1
+   2012; prior to that, version 1.5E had been frozen since 2003.  Some
+   issues that were subsequently fixed in Athena Widgets, such as long
+   menus running off the screen, were fixed differently in Xaw3d.  (This
+   affects the Set Time dialog, where the list of years to choose from can
+   be quite long.)
+   [Xaw3dXft-sample.png]   Xaw3dXft (tested ver. 1.6.2c) is a fork from
+   Xaw3d 1.5E that uses FreeType fonts.  The primary site is
+   [11]http://sourceforge.net/projects/sf-xpaint/files/libxaw3dxft/.  If
+   font quality is important, Xaw3dXft is the best choice.  It also fixes
+   the problem with long menus in the Set Time dialog.
+
+   XTide will link with [12]libgps if a compatible version is found on the
+   system (tested ver. 3.11).  If a GPS is present and working, XTide will
+   zoom in on your current location automatically.
+
+   XTide will link with [13]libdstr if a compatible version is found on
+   the system (tested ver. 1.0).  If no compatible libdstr is present, a
+   local copy of Dstr 1.0 will be rolled into libxtide.
+
+  Downloading
+
+   Mandatory:  You need the XTide source code distribution, available in
+   bzipped tar format at
+   [14]http://www.flaterco.com/xtide/files.html#xtide.
+
+   Mandatory:  You need at least one harmonics file.  Harmonics files
+   contain the data that are required for XTide to predict tides for
+   different locations.  Harmonics files are available at
+   [15]http://www.flaterco.com/xtide/files.html#harmonicsfiles.
+
+   Optional:  If you want to enable XTide to draw coastlines on the map,
+   you will also have to download the World Vector Shoreline (WVS) files,
+   which are available in bzipped tar format at
+   [16]http://www.flaterco.com/xtide/files.html#WVS.
+
+  Installing a harmonics file
+
+   You will download a file with a name similar to
+   harmonics-dwf-YYYYMMDD-free.tar.bz2.  With GNU tar, you can unpack it
+   as follows:
+
+tar xvf harmonics-dwf-YYYYMMDD-free.tar.bz2
+
+   With another tar that does not include builtin support for bzip2, you
+   need to do this instead:
+
+bzip2 -dc harmonics-dwf-YYYYMMDD-free.tar.bz2 | tar xvf -
+
+   Unpack the archive in a temporary directory, then move the TCD file to
+   a permanent location, e.g., /usr/local/share/xtide, and make it world
+   readable:
+
+mkdir /usr/local/share/xtide
+chmod 755 /usr/local/share/xtide
+chmod 644 harmonics-dwf-YYYYMMDD-free.tcd
+mv harmonics-dwf-YYYYMMDD-free.tcd /usr/local/share/xtide
+
+   The tar file also includes a change log and the disclaimers and terms
+   applying to the data.
+
+  Installing the World Vector Shoreline files (optional)
+
+    1. Create a directory to contain the WVS files.
+    2. Change your current working directory to that directory.
+    3. Unpack the tar file in that directory.
+
+   Under Linux and any other system with GNU tar:
+
+tar xvf wvs.tar.bz2
+
+   Elsewhere:
+
+bzip2 -dc wvs.tar.bz2 | tar xvf -
+
+  Unpacking the sources
+
+   Under Linux and any other system with GNU tar:
+
+tar xvf xtide-2.xyz.tar.bz2
+
+   Elsewhere:
+
+bzip2 -dc xtide-2.xyz.tar.bz2 | tar xvf -
+
+  Configuring
+
+    I.  Specify the location of the harmonics file(s)
+
+   There are two ways to do this.
+
+    1. The first way is by setting the environment variable HFILE_PATH.
+
+export HFILE_PATH=/usr/local/share/xtide/harmonics.tcd
+
+       In the event that you have more than one harmonics file that you
+       wish to use simultaneously, list them separated by colons.
+
+export HFILE_PATH=/usr/local/share/xtide/harmonics-free.tcd:/usr/local/share/xti
+de/harmonics-nonfree.tcd
+
+       Alternately, make sure that they are by themselves in a special
+       directory and specify that directory as the value of HFILE_PATH.
+       If an element of HFILE_PATH is a directory, XTide will attempt to
+       load every file in that directory (so be sure that they are all
+       harmonics files!)
+       If you are installing as root, then it is recommended that you add
+       this definition to a system-wide script such as /etc/profile if you
+       have one.
+    2. The other way is by creating the file /etc/xtide.conf.  The
+       environment variable, if set, takes precedence over the config
+       file.
+       If a configuration file is used, the first line should consist of
+       the value that would be assigned to HFILE_PATH:
+/usr/local/share/xtide/harmonics-free.tcd:/usr/local/share/xtide/harmonics-nonfr
+ee.tcd
+
+    II.  Specify the location of the World Vector Shoreline files (optional)
+
+   Either set the environment variable WVS_DIR to the name of that
+   directory or supply the directory name as the second line of the
+   configuration file /etc/xtide.conf.
+
+    III.  Run the configure script
+
+bash-3.1$ ./configure
+
+   XTide is packaged with the popular and portable [17]GNU automake, so
+   all usual GNU tricks should work.  Help on configuration options can be
+   found in the CONFIGURE-HELP file or obtained by entering ./configure
+   --help.
+
+   The web server xttpd is not necessary to use tide or xtide, so most
+   users needn't worry about it.  However, if you plan to run it, there is
+   additional configuration at this point.
+
+   To change the user and/or group under which xttpd tries to run (the
+   defaults are nobody/nobody), provide the options --with-xttpd-user=user
+   and/or --with-xttpd-group=group to configure.  If you want to run xttpd
+   but you don't have root, you will have to set these to your own
+   username and the name of some group to which you belong.
+
+bash-3.1$ ./configure --with-xttpd-user=xttpd --with-xttpd-group==scarydæmons
+
+   You can also set the webmaster address for xttpd this way.
+
+bash-3.1$ ./configure --with-webmaster="somebody@somewehere.else"
+
+    IV.  Other optional and alternative configurables
+
+   --enable-time-workaround Work around Y2038 problem; disable time
+   zones.  See [18]Appendix A -- Historical predictions and Y2038
+   compliance.
+   --enable-gnu-attributes Use with g++ -Wall -Wextra to make warnings
+   smarter.
+   --enable-semicolon-pathsep Use ; instead of : to separate names in
+   HFILE_PATH (good idea if they begin with C:\).
+   --enable-local-files Locate xtide.conf, .xtide.xml, and
+   .disableXTidedisclaimer files in current working directory.
+   --disable-3d Use only genuine Athena Widgets.
+   --enable-lm_hard Link with libm_hard instead of libm (for ARM Android).
+   --enable-moon-age (Experimental) Replace calendar mode moon phase
+   column with moon age.
+
+   You can change the compile-time defaults (colors, etc.) set in
+   libxtide/config.hh if you so choose.  However, the easiest way to set
+   all of those things is with the [19]control panel in the interactive
+   XTide program.
+
+   The e-mail address for feedback in xttpd can also be changed by setting
+   the environment variable XTTPD_FEEDBACK, in lieu of the configure
+   option mentioned above.
+
+  Compiling
+
+bash-3.1$ make
+bash-3.1$ su
+bash-3.1# make install
+
+Special cases
+
+  Don't have X11
+
+   If you don't have any version of X11 installed and just want to compile
+   xttpd or tide, generate a Makefile using ./configure --without-x.
+
+  Android
+
+   The XTide distribution does not provide a complete Android app, but the
+   basis for such an app, libxtide, can be built using the [20]NDK.  An
+   example script for cross-compiling libpng, libtcd, libxtide, tide, and
+   xttpd for Android on x86 or x86_64 Linux is in the XTide distribution
+   as scripts/Android/build.sh.  App developers can follow the example of
+   [21]MX Tides to add a JNI layer and GUI.  (The JNI layer from the 2013
+   version of [22]AndXtideLib should work except it needs updating to find
+   the XTide classes in the libxtide namespace.)
+
+   The tide and xttpd binaries produced by build.sh can be run from a
+   shell prompt on a rooted device and are fully functional.  Pointing a
+   web browser at xttpd on the loopback address (http://127.0.0.1/) is a
+   quick and dirty way to get a GUI.
+
+  Mac OS X
+
+  2014-05:  OS X has gone through an awkward phase with the C++ and X11
+  environments being replaced by alternatives.  Compatibility is a work in
+  progress.  Start with the current release of XTide 2.14, which won't reject
+  the Clang compiler at configure time.  It may then be necessary to specify the
+  location of the X11 / XQuartz header files in CPPFLAGS if they are in a
+  nonstandard place under /opt.
+
+  Ostensibly working build scripts are available from [23]MacPorts, but they are
+  currently unmaintained.  A [24]native port to OS X is also available.
+  Cygwin
+
+  XTide can be compiled and run using [25]Cygwin, which is an emulated Unix
+  environment for Windows that is free for typical non-commercial users.  The
+  Cygwin distribution and its full license terms are available from
+  [26]http://www.cygwin.com/.
+
+  Cygwin packages are all versioned separately, so there is no baseline "Cygwin
+  version" against which to test XTide.  Testing was most recently performed
+  with XTide 2.14 using the collection of packages that was current as of
+  2014-10-26.  As of then, the quirks apparent after brief testing were as
+  follows:
+
+    1. Had to specify CPPFLAGS="-I/usr/local/include"
+       LDFLAGS="-L/usr/local/lib" explicitly.
+    2. If only building certain of the programs, you must type (e.g.)
+       'make tide.exe' instead of 'make tide'.  'make tide' causes the
+       automake-generated makefile to do something silly.
+
+  Cygwin used to cause problems for XTide, so if your Cygwin installation is
+  old, it is highly advisable to update it before compiling.
+  DOS + DJGPP
+
+  [A prebuilt DOS binary for the command-line client is available in
+  [27]http://www.flaterco.com/xtide/files.html#contrib.  It is usable in a DOS
+  box under any 32-bit version of Windows.]
+
+  Don't laugh:  the DOS binary works better under Windows than the native
+  Windows one does.
+
+  The following instructions were last validated on 2014-11-02 with XTide 2.14
+  and the 2014-10-19 CVS snapshot of DJGPP 2.04 beta.
+
+  A DOS binary for the command-line client tide can be built using [28]DJGPP.
+  DJGPP hasn't had a full release since before the 2007 changes to the Daylight
+  Savings Time switchover dates for the U.S., so installing the CVS version is
+  mandatory to obtain correct local time predictions.
+
+    First things first
+
+  If using hard-core DOS, both a Long File Name (LFN) driver and a DPMI provider
+  must be installed.  Recommended:
+     * doslfn from [29]http://www.freedos.org/software/?prog=doslfn:  LH
+       DOSLFNMS.COM in AUTOEXEC.BAT.
+     * The csdpmi7b.zip binaries from DJGPP's current/v2misc or
+       [30]http://homer.rice.edu/~sandmann/cwsdpmi/:  add to PATH.
+
+  If using a DOS box (CMD.EXE) in a 32-bit version of Windows, LFN and DPMI
+  should just work.
+
+    Unzipping
+
+  When unpacking zip files, use the [31]unzip32.exe that is distributed with
+  DJGPP to prevent file names from getting broken.
+
+  File names on NTFS must be created in the DOS namespace.  Linux ntfs-3g
+  doesn't do that.  Similarly, the LFN implementation in Linux vfat is not
+  entirely compatible with doslfn.  It only works reliably if you mount the vfat
+  partition with the option shortname=winnt.
+
+    Environment
+
+  For the validation build, the following DJGPP files were installed (unzipped
+  in C:\DJGPP):
+
+-rw-r--r--  1 dave users  6628096 Sep  2 16:56 bnu224br2.zip
+-rw-r--r--  1 dave users    71339 Jan 28  2010 csdpmi7b.zip
+-rw-r--r--  1 dave users  2625207 Oct 19 20:58 djdev204.zip
+-rw-r--r--  1 dave users   581835 Oct 19 21:01 djtzn204.zip
+-rw-r--r--  1 dave users 21142487 Jul 17 00:34 gcc491b.zip
+-rw-r--r--  1 dave users 10969714 Jul 17 00:34 gpp491b.zip
+-rw-r--r--  1 dave users  8363181 Aug 31 13:57 gtxt192b.zip
+-rw-r--r--  1 dave users   755391 Oct 10 23:03 mak41b.zip
+-rw-r--r--  1 dave users  1208808 Jan 22  2014 png168b.zip
+-rw-r--r--  1 dave users   122318 May 13  2013 zlib128b.zip
+
+   djdev204.zip and djtzn204.zip were built from the 2014-10-19 CVS
+   snapshot as described at [32]http://www.flaterco.com/kb/djgpp.html.
+   The remaining files came from the [33]DJGPP archive.
+
+   The environment variable DJGPP must be set to C:\DJGPP\DJGPP.ENV.
+
+   The environment variable TZ should be set to the zoneinfo identifier
+   that is appropriate for your system clock.  For example,
+      SET TZ=:America/New_York
+  or  SET TZ=:America/Los_Angeles
+  or  SET TZ=:UTC
+
+   If this is not done, predictions will still be correct, but XTide will
+   have the wrong idea of the current time when deciding what range of
+   predictions to generate.
+
+    Dependencies
+
+     * Prebuilt libraries for libpng and zlib both are available in the
+       current/v2tk collection of the DJGPP archive (png---b.zip and
+       zlib---b.zip).
+     * Follow the instructions to build [34]libtcd for DOS.
+
+    Building tide
+
+    1. Ensure that scripts/DOS/Makefile.dj2 contains the correct path to
+       the libtcd build directory.
+    2. Do make -f scripts\DOS\Makefile.dj2.
+
+   The following behaviors will differ from the default Unix behaviors:
+
+     * File names in the environment variable HFILE_PATH or the
+       configuration file xtide.conf should be separated by semicolons
+       instead of colons.
+     * The optional xtide.conf, .xtide.xml, and .disableXTidedisclaimer
+       configuration files should go in the current working directory.
+       Not in PATH folders, not in the directory where the tide.exe
+       executable is.
+     * Text output is rendered in the DOS/Windows default codeset (CP437).
+     * If output is redirected with >, LF to CR/LF translation is done.
+       If output is redirected with -o, it is not.  So to save output to a
+       file, you have to use > for text formats, -o for PNG format.  (Also
+       be aware that -o will append to an existing file, rather than
+       overwrite it.)
+
+  Windows + Visual Studio
+
+  [A prebuilt Windows binary for the command-line client is available in
+  [35]http://www.flaterco.com/xtide/files.html#contrib.  It still runs in a DOS
+  box, but is compatible with Windows 7 64-bit.]
+
+  The following instructions were last validated on 2014-11-02 with XTide 2.14
+  and Visual Studio Express 2013 for Windows Desktop Update 3 under Windows 7
+  64-bit.
+
+  For Windows and Visual Studio, a script that builds zlib, libpng, libtcd,
+  libxtide, and finally tide is available in the XTide distribution as
+  scripts\VS\build.bat.
+
+    1. Do Start -> Visual Studio 2013 -> Visual Studio Tools -> VS2013 x64
+       Cross Tools Command Prompt (or VS2013 x86 Native Tools Command
+       Prompt).  To work around file system permissions problems, right
+       click it and run as Administrator.
+    2. Unpack the zlib, libpng, libtcd, and XTide distributions under the
+       current working directory.
+    3. Copy xtide...\scripts\VS\build.bat to the working directory and
+       edit it so that the version numbers specified at the top agree with
+       what you have.
+    4. build
+
+   When built with Visual Studio, XTide has to use an undesirable
+   workaround for the absence of the [36]Time Zone Database, and the
+   resulting binary might not run on a different version of Windows.  On
+   32-bit Windows, the [37]DOS+DJGPP build is simply better.  On 32- or
+   64-bit Windows, best results are obtained using [38]Cygwin or a Linux
+   VM.  The only purpose of the Visual Studio build is to provide a small
+   binary package that works in 64-bit Windows and does not require a big
+   Unix environment to be installed along with it.
+
+   As configured, the following behaviors will differ from the default
+   Unix behaviors:
+
+     * File names in the environment variable HFILE_PATH or the
+       configuration file xtide.conf should be separated by semicolons
+       instead of colons.
+     * The optional xtide.conf, .xtide.xml, and .disableXTidedisclaimer
+       configuration files should go in the current working directory.
+       Not in PATH folders, not in the directory where the tide.exe
+       executable is.
+     * Because the Microsoft Visual Studio runtime doesn't support the
+       zoneinfo database natively, you will get the message "XTide
+       Warning:  Using obsolete time zone database.  Summer Time (Daylight
+       Savings Time) adjustments will not be done for some locations."
+     * Although the program successfully changes the codeset from CP437 to
+       ISO-8859-1 when it runs, the DOS box reverts to CP437 as soon as
+       the program exits, so text output that is saved to a file and then
+       TYPEd at the command prompt will display incorrectly.  The saved
+       output is in the character set ISO-8859-1 and will display
+       correctly in a web browser or editor.
+     * If output is redirected with >, LF to CR/LF translation is done.
+       If output is redirected with -o, it is not.  So to save output to a
+       file, you have to use > for text formats, -o for PNG format.  (Also
+       be aware that -o will append to an existing file, rather than
+       overwrite it.)
+
+   For example, you could put the following in an xtide.conf file in the
+   current working directory:
+
+C:\Documents and Settings\Mumble\Foo\harmonics-free.tcd;C:\Documents and Setting
+s\Mumble\Foo\harmonics-nonfree.tcd
+
+  CPU-constrained platforms
+
+   There are some CPU bottlenecks that are observable only on very old
+   hardware.  Real time estimates in the following are from a 166 MHz
+   Pentium PC:
+     * Updating the map in the location chooser takes between 0 and 20
+       seconds depending on how much of the world has to be redrawn.  To
+       avoid the lag when zoomed out, don't install the optional [39]World
+       Vector Shoreline database.
+     * On the first run, libXaw3dXft bogs down for minutes trying to
+       process exposure events on the long text of the disclaimer window.
+       Since the disclaimer is normally read once and then disabled for
+       future runs, one can either put up with it that one time or avoid
+       the problem by building with libXaw3d or libXaw instead of
+       libXaw3dXft.
+     * Redrawing a default-sized tide graph takes about 1 second, which
+       seems slow when one is scrolling forward or backward.  Graph
+       drawing is faster if an 8-bit display mode (PseudoColor visual) is
+       used, but anti-aliasing and transparency are available only in true
+       color modes.
+
+   The -aa setting that formerly could be used to speed up drawing on true
+   color displays by disabling anti-aliasing was retired in XTide version
+   2.12.
+
+UNIX flavors--old information
+
+   The following old information has not been validated any time recently
+   and might no longer apply.
+
+  Sun
+
+   If compiling with Sun's own compiler, use CXX="CC -fast
+   -library=stlport4" and CPPFLAGS="-I.".
+
+   Use CPPFLAGS="-I/opt/csw/include" and LDFLAGS="-R/opt/csw/lib/
+   -L/opt/csw/lib" to find libraries from [40]Blastwave installed under
+   /opt/csw.
+
+  IRIX
+
+   Some SGI machines come with a broken make program.  Use GNU make.
+
+  HP-UX
+
+   Long ago, a user submitted the following flags to get XTide to compile
+   using the aCC compiler under HP-UX:
+
+bash-3.1$ CXX="aCC" CXXFLAGS="-Wc,-koenig_lookup,on +DAportable" LDFLAGS="-lPW"
+./configure
+
+Troubleshooting
+
+Q: When compiling XTide, I get thousands of warnings of the form "warning:
+'auto_ptr' is deprecated".
+
+A: To suppress these nuisance warnings in GCC, use
+CPPFLAGS="-Wno-deprecated-declarations" or upgrade to GCC 4.6 or newer.
+
+Q: XTide compiles, but when I try to run it I get an error like
+
+error while loading shared libraries: libtcd.so.0: cannot open shared object fil
+e: No such file or directory
+
+   A: Somehow, g++ found the shared library but your dynamic linker
+   didn't.  To get the dynamic linker to find the library, you can just
+   add its directory to the environment variable LD_LIBRARY_PATH.  For
+   example, if you find the library in /usr/local/lib, you would add this
+   to your .bashrc (if using bash):
+export LD_LIBRARY_PATH=/usr/local/lib
+
+   Or you would add this to your .cshrc (if using csh or tcsh):
+setenv LD_LIBRARY_PATH /usr/local/lib
+
+   Another workaround is to hard-code the directory into the executable
+   using magic GNU linker switches:  configure with
+   LDFLAGS="-Wl,-rpath,/usr/local/lib".  Finally, you could just link
+   statically with libtcd.
+
+   Q: When compiling XTide, I get an error involving xml-something or
+   lex.xml.c.
+
+   A: Do make xmlclean and then try again.
+
+   Q: Using a DJGPP-built tide program in a DOS box in a 32-bit version of
+   Windows, I get
+harmonics.tcd: No such file or directory (ENOENT).
+
+   But the file is THERE!
+
+   A: When you do dir /X, you should see this:
+  12/24/2012  03:15 PM         1,937,557 HARMON~1.TCD harmonics.tcd
+
+   If it says harmonics.tcd but not also HARMON~1.TCD, then the file was
+   created in the wrong namespace.  Recreate the file in a DOS box and
+   confirm that HARMON~1.TCD then appears with dir /X.
+
+   Q: Using a DJGPP-built tide program in a DOS box in a 32-bit version of
+   Windows, I get "Your platform appears to have broken time zone
+   support.  You need to get the DJGPP zoneinfo package and unpack it in
+   C:\DJGPP."  But C:\DJGPP\zoneinfo is THERE!
+
+   A:
+     * To avoid namespace problems, unpack djtzn204.zip using DJGPP's
+       [41]unzip32.exe in a DOS box.
+     * Ensure that DJGPP.ENV is installed in C:\DJGPP.
+     * Ensure that the environment variable DJGPP is set to
+       C:\DJGPP\DJGPP.ENV.
+
+   Q: DOS again...  I unzipped the files under Linux into a vfat (FAT)
+   file system, and now I've got problems in DOS like missing header file,
+   broken time zones....
+
+   A: Yup.  There's something incompatible in the LFN implementations.
+   Don't ask me why, but this only works reliably if you mount the vfat
+   partition with the option shortname=winnt.
+
+   Q: Trying to compile XTide using Sun compilers, the following error
+   occurs:
+"/opt/SUNWspro/prod/include/CC/Cstd/./map", line 251: Error: Multiple declaratio
+n for std::map<const Dstr, Configurable, std::less<const Dstr>, std::allocator<s
+td::pair<const Dstr, Configurable>>>::insert(const std::pair<const Dstr, Configu
+rable>&).
+"BetterMap.hh", line 28:     Where: While specializing "std::map<const Dstr, Con
+figurable, std::less<const Dstr>, std::allocator<std::pair<const Dstr, Configura
+ble>>>".
+"BetterMap.hh", line 28:     Where: Specialized in BetterMap<const Dstr, Configu
+rable>.
+"Settings.hh", line 30:     Where: Specialized in non-template code.
+
+   A: This problem is resolved by the -library=stlport4 compiler switch.
+     __________________________________________________________________
+
+   [42]<- Previous [43]-> Next [44]Contents
+
+References
+
+   1. http://www.flaterco.com/xtide/sysreq.html
+   2. http://www.flaterco.com/xtide/ports.html
+   3. http://www.flaterco.com/xtide/xtide.html#contents
+   4. http://www.flaterco.com/
+   5. http://www.flaterco.com/xtide/files.html
+   6. http://www.flaterco.com/xtide/files.html#contrib
+   7. ftp://ftp.x.org/contrib/libraries/
+   8. http://www.zlib.net/
+   9. http://www.libpng.org/pub/png/libpng.html
+  10. http://www.flaterco.com/xtide/files.html#libtcd
+  11. http://sourceforge.net/projects/sf-xpaint/files/libxaw3dxft/
+  12. http://www.catb.org/gpsd/
+  13. http://www.flaterco.com/util/index.html
+  14. http://www.flaterco.com/xtide/files.html#xtide
+  15. http://www.flaterco.com/xtide/files.html#harmonicsfiles
+  16. http://www.flaterco.com/xtide/files.html#WVS
+  17. http://www.gnu.org/software/automake/automake.html
+  18. http://www.flaterco.com/xtide/time_t.html
+  19. http://www.flaterco.com/xtide/advanced.html#cp
+  20. https://developer.android.com/tools/sdk/ndk/index.html
+  21. http://www.flaterco.com/xtide/ports.html#androidport
+  22. https://github.com/manimaul/AndXtideLib
+  23. http://www.macports.org/ports.php?by=name&substr=xtide
+  24. http://www.flaterco.com/xtide/ports.html#Mac
+  25. http://www.cygwin.com/
+  26. http://www.cygwin.com/
+  27. http://www.flaterco.com/xtide/files.html#contrib
+  28. http://www.delorie.com/djgpp/
+  29. http://www.freedos.org/software/?prog=doslfn
+  30. http://homer.rice.edu/~sandmann/cwsdpmi/
+  31. http://www.delorie.com/pub/djgpp/current/unzip32.exe
+  32. http://www.flaterco.com/kb/djgpp.html
+  33. http://www.delorie.com/djgpp/
+  34. http://www.flaterco.com/xtide/libtcd.html#DOS
+  35. http://www.flaterco.com/xtide/files.html#contrib
+  36. http://www.iana.org/time-zones
+  37. http://www.flaterco.com/xtide/installation.html#DOS
+  38. http://www.flaterco.com/xtide/installation.html#cygwin
+  39. http://www.flaterco.com/xtide/installation.html#WVS
+  40. http://www.blastwave.org/
+  41. http://www.delorie.com/pub/djgpp/current/unzip32.exe
+  42. http://www.flaterco.com/xtide/sysreq.html
+  43. http://www.flaterco.com/xtide/ports.html
+  44. http://www.flaterco.com/xtide/xtide.html#contents

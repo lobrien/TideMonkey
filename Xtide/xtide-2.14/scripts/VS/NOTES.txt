@@ -1,0 +1,36 @@
+2014-10-26
+
+The pre-generated autoconf-defines.h resulted from running configure with
+Visual Studio Express 2013 for Windows Desktop Update 3 and Cygwin as
+described below.  That build did not complete because of conflicting LDFLAGS
+needs for xtide.lib versus the tide executable and the tests in configure.
+
+1.  Do Start -> Visual Studio 2013 -> Visual Studio Tools -> VS2013 x64 Cross
+Tools Command Prompt (or VS2013 x86 Native Tools Command Prompt).  To work
+around file system permissions problems, right click it and run as
+Administrator.
+
+2.  Build zlib, libtcd, and libpng as in build.bat.
+
+3.  At the command prompt, execute C:\cygwin64\Cygwin.bat (or
+C:\cygwin\Cygwin.bat, or substitute the correct path to your Cygwin.bat
+file).
+
+4.  Run this, changing version numbers as appropriate:
+
+export LIB="${LIB}..\\zlib;..\\libtcd-2.2.6;..\\libpng-1.6.13;"
+export LIBPATH="${LIB}..\\zlib;..\\libtcd-2.2.6;..\\libpng-1.6.13;"
+export INCLUDE="${INCLUDE}..\\zlib;..\\libtcd-2.2.6;..\\libpng-1.6.13;"
+./configure CC="cl /O2 /MD" CXX="cl /O2 /MD" LD="cl /O2 /MD" CPP="cl /E" LDFLAGS="zlib.lib libpng.lib tcd.lib" --disable-dependency-tracking --disable-shared --enable-static --enable-semicolon-pathsep --enable-local-files
+
+5.  make.
+
+You will get a lot of warnings as Visual C++ ignores most of the standard
+command-line switches that the autoconf build process tries to use.
+
+
+The failure was:
+
+libtool: link: ar cru .libs/xtide.lib zlib.lib libpng.lib tcd.lib  Amplitude.obj Angle.obj Banner.obj Calendar.obj CalendarFormC.obj CalendarFormH.obj CalendarFormL.obj CalendarFormNotC.obj CalendarFormT.obj ClientSideFont.obj Colors.obj Constituent.obj ConstituentSet.obj Coordinates.obj CurrentBearing.obj Date.obj Global.obj Graph.obj HarmonicsFile.obj HarmonicsPath.obj Interval.obj MetaField.obj Nullable.obj NullableInterval.obj NullablePredictionValue.obj Offsets.obj PixelatedGraph.obj PredictionValue.obj RGBGraph.obj Settings.obj Skycal.obj Speed.obj Station.obj StationIndex.obj StationRef.obj SubordinateStation.obj SVGGraph.obj TTYGraph.obj TideEvent.obj TideEventsOrganizer.obj Timestamp.obj Units.obj Year.obj xml_l.obj xml_y.obj Dstr.obj
+ar: zlib.lib: No such file or directory
+Makefile:628: recipe for target 'libxtide.la' failed
