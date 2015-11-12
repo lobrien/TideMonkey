@@ -75,6 +75,7 @@ module Speed =
     let Convert (degreesPerHour : float<DegreesPerHour>) : float<RadiansPerSecond> = (degreesPerHour * Math.PI / 648000.0) * 1.0<RadiansPerSecond/DegreesPerHour>
 
 module Constituent =    
+    open Geometry
    
     let CreateFromUntypedInputs speedDegreesPerSecond startYear numberOfYears argsDegrees nodes amplitude phaseDegrees = 
         let typedSpeed = speedDegreesPerSecond * 1.0<DegreesPerHour>

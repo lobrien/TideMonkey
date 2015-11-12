@@ -115,7 +115,7 @@ module Meeus =
             -0.00034 * E; 0.00032 * E; 0.00032 * E; -0.00028 * (E * E);
             0.00027 * E; -0.00017; -0.00005; 0.00004; -0.00004; 0.00004;
             0.00003; 0.00003; 0.00002; 0.00002; -0.00002]
-             
+                            
         let cs = match moonPhase with
                         | NewMoon -> newMoonConstants
                         | FullMoon -> fullMoonConstants
@@ -128,16 +128,25 @@ module Meeus =
         let rad2deg rads = 1.<Degrees> * rads * 180. / Math.PI
 
         let newAndFullOps = [
-            rad2deg(Math.Sin(deg2rad(M'))) ;M ;(2. * M') ;(2. * F) ;(M' - M) ;
+            M';M ;(2. * M') ;(2. * F) ;(M' - M) ;
             (M' + M) ;(2. * M) ;(M' - 2. * F) ;(M' + 2. * F) ;(2. * M' + M) ;
             (3. * M') ;(M + 2. * F) ;(M - 2. * F) ;(2. * M' - M) ;Omega ;
             (M' + 2. * M) ;(2. * M' - 2. * F) ;(3. * M) ;(M' + M - 2. * F) ;
             (2. * M' + 2. * F) ;(M' + M + 2. * F) ;(M' - M + 2. * F) ;
             (M' - M - 2. * F) ;(3. * M' + M) ;(4. * M') ]
 
-        let pieceWise  = List.zip newMoonConstants newAndFullOps |> List.map (fun (fst,snd) -> normalize(fst * snd)) 
+        
+
+        let pieceWise  = 
+            List.zip newMoonConstants newAndFullOps 
+            |> List.map (fun (fst,snd) -> (fst * snd))
+            |> List.map normalize 
+            |> List.map deg2rad 
+            |> List.map sin
+
           
-        pieceWise |> List.sum
+        let r = pieceWise |> List.sum
+        (r, pieceWise)
        (*  
         let correction =
             match moonPhase with
