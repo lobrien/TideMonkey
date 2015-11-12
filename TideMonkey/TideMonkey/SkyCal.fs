@@ -97,7 +97,7 @@ module Meeus =
 
         let newMoonConstants = 
             [-0.40720; 0.17241 * E; 0.01608; 0.01039; 0.00739 * E; -0.00514 * E;
-            0.00208 * (E * E);  -0.00111; -0.00057; -0.00056 * E; -0.00042; 0.000042 * E;
+            0.00208 * (E * E);  -0.00111; -0.00057; 0.00056 * E; -0.00042; 0.00042 * E;
             0.00038 * E; -0.00024 * E; -0.00017; -0.00007; 0.00004; 0.00004; 0.00003; 
             0.00003; -0.00003; 0.00003; -0.00002; -0.00002; 0.00002]
 
@@ -139,10 +139,7 @@ module Meeus =
 
         let pieceWise  = 
             List.zip newMoonConstants newAndFullOps 
-            |> List.map (fun (fst,snd) -> (fst * snd))
-            |> List.map normalize 
-            |> List.map deg2rad 
-            |> List.map sin
+            |> List.map (fun (fst,snd) -> fst * sin(deg2rad(snd)))
 
           
         let r = pieceWise |> List.sum
