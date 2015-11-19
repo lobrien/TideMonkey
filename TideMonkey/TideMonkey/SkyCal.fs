@@ -15,6 +15,10 @@ module Calendar =
     let ToJulianDate (dateTime : DateTime) = 
         dateTime.ToOADate() + 2415018.5
 
+    let FromJulianDate jde = 
+        let d = jde - 2415018.5
+        DateTime.FromOADate(d)
+
 
 (* Algorithms from Meeus' "Astronomical Algorithms, 2nd Ed." Willman-Bell, 2009 *)
 module Meeus = 
@@ -39,11 +43,10 @@ module Meeus =
     //Approximation of k (49.2)
     let kApprox (time : DateTime) = 
         let fractionalYears = time.Subtract(new DateTime(2000, 1, 1)).TotalDays / 365.25
-        fractionalYears * 12.3685
+        fractionalYears * 12.3685 
 
     //Approximation of T (49.3)
-    let TApprox time =
-        kApprox time / 1236.85
+    let TApprox k time = k / 1236.85
 
     //Sun's mean anomaly (49.4)
     let M T k = 
@@ -103,7 +106,7 @@ module Meeus =
 
         let fullMoonConstants =
             [-0.40614; 0.17302 * E; 0.01614; 0.01043; 0.00734 * E; -0.00515 * E;
-            0.00209 * (E * E);  -0.00111; -0.00057; -0.00056 * E; -0.00042; 0.000042 * E;
+            0.00209 * (E * E);  -0.00111; -0.00057; -0.00056 * E; -0.00042; 0.00042 * E;
             0.00038 * E; -0.00024 * E; -0.00017; -0.00007; 0.00004; 0.00004; 0.00003; 
             0.00003; -0.00003; 0.00003; -0.00002; -0.00002; 0.00002]
 
@@ -111,7 +114,7 @@ module Meeus =
         //pg. 352
         let quarterConstants = 
             [-0.62801; 0.17172 * E; -0.01183 * E; 0.00862; 0.00804;
-            0.00454 * E; 0.00204 * E; -0.00180; -0.00070; -0.00040;
+            0.00454 * E; 0.00204 * E * E; -0.00180; -0.00070; -0.00040;
             -0.00034 * E; 0.00032 * E; 0.00032 * E; -0.00028 * (E * E);
             0.00027 * E; -0.00017; -0.00005; 0.00004; -0.00004; 0.00004;
             0.00003; 0.00003; 0.00002; 0.00002; -0.00002]
@@ -135,83 +138,91 @@ module Meeus =
             (2. * M' + 2. * F) ;(M' + M + 2. * F) ;(M' - M + 2. * F) ;
             (M' - M - 2. * F) ;(3. * M' + M) ;(4. * M') ]
 
-        
+        let quarterOps = [
+            M';
+            M ;
+            M' + M;
+            2. * M';
+            2. * F;
+            M' - M;
+            2. * M;
+            M' - 2. * F;
+            M' + 2. * F;
+            3. * M';
+            2. * M' - M;
+            M + 2. * F;
+            M - 2. * F;
+            M' + 2. * M;
+            2. * M' + M;
+            Omega;
+            M' - M - 2.* F;
+            2. * M' + 2. * F;
+            M' + M + 2. * F;
+            M' - 2. * M;
+            M' + M - 2. * F;
+            3. * M;
+            2. * M' - 2. * F;
+            M' - M + 2. * F;
+            3. * M' + M;
+            ]
 
-        let pieceWise  = 
-            List.zip newMoonConstants newAndFullOps 
-            |> List.map (fun (fst,snd) -> fst * sin(deg2rad(snd)))
+        let constantsAndOps = 
+            match moonPhase with
+            | NewMoon -> List.zip newMoonConstants newAndFullOps 
+            | FullMoon -> List.zip fullMoonConstants newAndFullOps
+            | FirstQuarter 
+            | LastQuarter -> List.zip quarterConstants quarterOps
+
+        let pieceWise = constantsAndOps |> List.map (fun (fst,snd) -> fst * sin(deg2rad(snd)))
 
           
         let r = pieceWise |> List.sum
-        (r, pieceWise)
-       (*  
-        let correction =
-            match moonPhase with
-            | NewMoon 
-            | FullMoon ->  
-                //pg. 351
-                cs.[0]    * Math.Sin(deg2rad (M'))
-                + cs.[1]  * M
-                + cs.[2]  * (2. * M')
-                + cs.[3]  * (2. * F)
-                + cs.[4]  * (M' - M)
-                + cs.[5]  * (M' + M)
-                + cs.[6]  * (2. * M)
-                + cs.[7]  * (M' - 2. * F)
-                + cs.[8]  * (M' + 2. * F)
-                + cs.[9]  * (2. * M' + M)
-                + cs.[10] * (3. * M')
-                + cs.[11] * (M + 2. * F)
-                + cs.[12] * (M - 2. * F)
-                + cs.[13] * (2. * M' - M)
-                + cs.[14] * Omega
-                + cs.[15] * (M' + 2. * M)
-                + cs.[16] * (2. * M' - 2. * F)
-                + cs.[17] * (3. * M)
-                + cs.[18] * (M' + M - 2. * F)
-                + cs.[19] * (2. * M' + 2. * F)
-                + cs.[20] * (M' + M + 2. * F)
-                + cs.[21] * (M' - M + 2. * F)
-                + cs.[22] * (M' - M - 2. * F)
-                + cs.[23] * (3. * M' + M)
-                + cs.[24] * (4. * M')
-            | FirstQuarter
-            | LastQuarter ->
-                //pg. 352
-                cs.[0]    * Math.Sin(deg2rad(M'))
-                + cs.[1]  * M
-                + cs.[2]  * (M' + M)
-                + cs.[3]  * (2. * M')
-                + cs.[4]  * (2. * F)
-                + cs.[5]  * (M' - M)
-                + cs.[6]  * (2. * M)
-                + cs.[7]  * (M' - 2. * F)
-                + cs.[8]  * (M' + 2. * F)
-                + cs.[9]  * (3. * M')
-                + cs.[10] * (2. * M' - M)
-                + cs.[11] * (M + 2. * F)
-                + cs.[12] * (M - 2. * F)
-                + cs.[13] * (M' + 2. * M)
-                + cs.[14] * (2. * M' + M)
-                + cs.[15] * Omega
-                + cs.[16] * (M' - M - 2. * F)
-                + cs.[17] * (2. * M' + 2.* F)
-                + cs.[18] * (M' + M + 2. * F)
-                + cs.[19] * (M' - 2. * M)
-                + cs.[20] * (M' + M - 2. * F)
-                + cs.[21] * (3. * M)
-                + cs.[22] * (2. * M' - 2. * F)
-                + cs.[23] * (M' - M + 2. * F)
-                + cs.[24] * (3. * M' + M)
 
-        correction
-        *)
+        //Calculate correction for last and first quarter
+        let w = 
+            0.00306 
+            - 0.00038 * E * cos(deg2rad(M)) 
+            + 0.00026 * cos(deg2rad(M'))
+            - 0.00002 * cos(deg2rad(M' - M))
+            + 0.00002 * cos(deg2rad(M' + M))
+            + 0.00002 * cos(deg2rad(2. * F))
+
+        let correctedForQuarter = 
+            match moonPhase with
+            | FirstQuarter -> w
+            | LastQuarter -> -w
+            | NewMoon
+            | FullMoon -> 0.0
+
+        let final = r + correctedForQuarter
+
+        (final, pieceWise)
+       
 
 module Moon = 
 
+    let PhasesForMoonCycle (t : DateTime) = 
+        let ka = Meeus.kApprox t
+
+        let ks = [ (Math.Floor(ka), NewMoon); (Math.Floor(ka) + 0.25, FirstQuarter); (Math.Floor(ka) + 0.5, FullMoon); (Math.Floor(ka) + 0.75, LastQuarter)]
+
+        ks
+        |> List.map (fun (k, phase) -> 
+            let T = Meeus.TApprox k t
+            let JDE = Meeus.JDE k T
+            let E = Meeus.E T
+            let M = Meeus.M T k
+            let M' = Meeus.M' T k
+            let F = Meeus.F T k
+            let omega = Meeus.Omega T k
+            let (correx, _) = Meeus.ApparentPhaseNonPlanetaryCorrections phase E M M' F omega
+            (JDE + correx, phase)
+            )
+        |> List.sort
+        |> List.map (fun (jde, phase) -> (Calendar.FromJulianDate(jde), phase))
+
     
-    
-    let NextMoonPhase (time : DateTime) = 
+    let rec NextMoonPhase (time : DateTime) = 
         (*
         LOB: This is not a port of Skycal's NextMoonPhase function
 
@@ -219,9 +230,13 @@ module Moon =
         Meeus' "Astronomical Algorithms, 2nd Ed." and other algorithms
 
         *)
+        let phases = PhasesForMoonCycle time
+
+        let nextInCurrentCycle = phases |> List.tryFind (fun (d : DateTime, _) -> d > time)
+        match nextInCurrentCycle with
+        | Some phase -> phase
+        | None -> 
+            let lastPhaseOfCycle = phases |> List.max 
+            NextMoonPhase ((fst lastPhaseOfCycle).AddDays(1.))
 
 
-
-
-
-        NewMoon

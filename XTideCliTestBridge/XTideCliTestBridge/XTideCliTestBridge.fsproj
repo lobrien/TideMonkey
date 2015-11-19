@@ -37,9 +37,6 @@
     <Reference Include="System" />
     <Reference Include="System.Core" />
     <Reference Include="nunit.framework" />
-    <Reference Include="TideMonkey">
-      <HintPath>..\..\TideMonkey\TideMonkey\bin\Debug\TideMonkey.dll</HintPath>
-    </Reference>
   </ItemGroup>
   <ItemGroup>
     <Compile Include="CLISmokeTest.fs" />
@@ -49,4 +46,10 @@
     <Compile Include="SkyCalTests.fs" />
   </ItemGroup>
   <Import Project="$(MSBuildExtensionsPath32)\..\Microsoft SDKs\F#\3.1\Framework\v4.0\Microsoft.FSharp.Targets" />
+  <ItemGroup>
+    <ProjectReference Include="..\..\TideMonkey\TideMonkey\TideMonkey.fsproj">
+      <Project>{17A336B8-E987-4B9A-9420-9259DD6A426C}</Project>
+      <Name>TideMonkey</Name>
+    </ProjectReference>
+  </ItemGroup>
 </Project>
