@@ -2,6 +2,7 @@
 open System
 open NUnit.Framework
 open TideMonkey
+open TideMonkey.Station
 
 [<TestFixture>]
 type TideMonkeyLibTests() = 
@@ -30,7 +31,7 @@ type TideMonkeyLibTests() =
     member x.KonaCanPredict() = 
         let ss = Station.LoadStations "AnyPath"
         let s = ss.Value |> Station.Named "Kailua Kona" |> fun x -> x.Value
-        let kkPredictor = Station.Predict s 
+        let kkPredictor = s.Predict
         let prediction = fromUnixTimestamp 1445121500.0 |> kkPredictor 
         Assert.AreEqual(Falling, prediction.Direction)
         Assert.AreEqual((float) 0.6523, (float) prediction.Magnitude, 0.0001)

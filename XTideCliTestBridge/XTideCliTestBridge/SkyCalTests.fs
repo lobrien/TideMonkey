@@ -3,6 +3,7 @@ open System
 open NUnit.Framework
 open SkyCal
 open TideMonkey
+open Geometry
 
 [<TestFixture>]
 type SkyCalTests() = 
@@ -155,3 +156,82 @@ type SkyCalTests() =
         Assert.AreEqual(FirstQuarter, snd nextPhase)
         let expected = new DateTime(2015, 11, 19, 6, 29, 02)
         Assert.AreEqual(expected.ToOADate(), (fst nextPhase).ToOADate(), 0.001)
+
+    [<Test>]
+    member x.CanFindMeanSiderealTime() = 
+        //Meeus example 12.a
+        let t = new DateTime(1987, 4, 10)
+        let jd = Calendar.ToJulianDate(t)
+        Assert.AreEqual(2446895.5, jd)
+        let st = Meeus.SiderealTimeGreenwich t
+        let mst = st.MeanSiderealTime
+        Assert.AreEqual(13, mst.Hours)
+        Assert.AreEqual(10, mst.Minutes)
+        Assert.AreEqual(46.3668, mst.Seconds, 0.5)
+
+        let ast = st.ApparentSiderealTime
+        Assert.AreEqual(13, ast.Hours)
+        Assert.AreEqual(10, ast.Minutes)
+        Assert.AreEqual(46.1351, ast.Seconds, 0.5)
+
+    [<Test>]
+    member x.CanFindTrueObliquityOfEcliptic() = 
+        //Meeus example 22.a 
+        let t = new DateTime(1987, 4, 10)
+        let epsilon = Meeus.TrueObliquityOfEcliptic t
+        let dms= deg2dms epsilon
+        Assert.AreEqual(23, int dms.Degrees)
+        Assert.AreEqual(26, int dms.Minutes)
+        Assert.AreEqual(36.850, (float dms.Seconds), 0.5)
+
+    [<Test>]
+    member x.CanCalculateNutationAndObliquityOfEcliptic() = 
+        //Meeus 22.a approximation
+        let t = new DateTime(1987, 4, 10)
+        let jd = Calendar.ToJulianDate(t)
+        Assert.AreEqual(2446895.5, jd)
+        let n = Meeus.NutationApprox t
+
+        let deltaPsi = float n.DeltaPsi
+        let deltaEps = float n.DeltaEpsilon 
+
+        //Note low precision: these are arc-seconds; plus the Nutation calc is the approx one, good for 0".5 
+        Assert.AreEqual(-3.788, deltaPsi, 0.5)
+        Assert.AreEqual(9.443, deltaEps, 0.5)
+
+    [<Test>]
+    member x.CanApproximateRisingAndSetting() = 
+        //Meeus 15.a
+        let t = new DateTime(1988, 03, 20)
+        let longitude = 71.0833<Degrees>
+        let latitude = 42.3333<Degrees>
+        let theta0 = 177.74208<Degrees>
+        let ephemeris = {
+            Prior = { Date = new DateTime(1988, 03, 19); Alpha = 40.68021<Degrees>; Delta = 18.04761<Degrees> };
+            Day = { Date = new DateTime(1988, 03, 20); Alpha = 41.73129<Degrees>; Delta = 18.44092<Degrees> };
+            Following = { Date = new DateTime(1988, 03, 21); Alpha = 42.78204<Degrees>; Delta = 18.82742<Degrees> }
+            }
+        let h0 = -0.5667<Degrees>
+        let deltaT = 56<Seconds>
+        let results = Meeus.RisingAndSettingApprox longitude latitude theta0 ephemeris h0 
+        //Notice that these are off by as much as a minute, because I do not interpolate for corrections
+        Assert.AreEqual(25.0, float results.Rising.Minutes, 1.0)
+        Assert.AreEqual(41.0, float results.Transit.Minutes, 1.0)
+        Assert.AreEqual(55.0, float results.Setting.Minutes, 1.0)
+ 
+    [<Test>]
+    member x.CanCalculateSunrise() = 
+        Assert.Fail()
+
+    [<Test>]
+    member x.CanCalculateSunsets() = 
+        Assert.Fail()
+
+
+    [<Test>]
+    member x.CanCalculateMoonrise() = 
+        Assert.Fail() 
+
+    [<Test>]
+    member x.CanCalculateMoonsets() = 
+        Assert.Fail() 

@@ -44,6 +44,7 @@
     <Compile Include="TideMonkeyLibTests.fs" />
     <Compile Include="TideMonkeyInfrastructureTests.fs" />
     <Compile Include="SkyCalTests.fs" />
+    <Compile Include="WorkingOnTests.fs" />
   </ItemGroup>
   <Import Project="$(MSBuildExtensionsPath32)\..\Microsoft SDKs\F#\3.1\Framework\v4.0\Microsoft.FSharp.Targets" />
   <ItemGroup>

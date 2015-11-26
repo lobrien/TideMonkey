@@ -2,6 +2,7 @@
 
 open System
 open TideMonkey
+open Geometry
 
 type MoonPhaseT = 
     | NewMoon
@@ -9,6 +10,16 @@ type MoonPhaseT =
     | FullMoon
     | LastQuarter
 
+// DeltaPhi = Nutation in Longitude, DeltaEpsilon = nutation in obliquity
+type NutationT = { DeltaPsi : float<ArcSeconds>; DeltaEpsilon : float<ArcSeconds> }
+
+type SiderealTimeT = { MeanSiderealTime : HMS; ApparentSiderealTime : HMS }
+
+type EphemerisEntryT = { Date: DateTime; Alpha : float<Degrees>; Delta : float<Degrees> }
+
+type EphemerisT = { Prior : EphemerisEntryT; Day : EphemerisEntryT; Following : EphemerisEntryT }
+
+type RisingTransitSettingT = { Rising : HMS; Transit : HMS; Setting : HMS }
 
 module Calendar = 
 
@@ -82,16 +93,16 @@ module Meeus =
         + 0.00000215 * T * T * T
         |> (*) 1.0<Degrees>
 
+    let normalize ds = 
+        let unitCircle = ds % 360.<Degrees>
+        let degs = 
+            match unitCircle < 0.<Degrees> with
+            | true -> unitCircle + 360.0<Degrees>
+            | false -> unitCircle
+        degs
+
     //True (apparent) phase corrections (constants pp. 351-352)
     let ApparentPhaseNonPlanetaryCorrections moonPhase (e : float) (m : float<Degrees>) (m': float<Degrees>)  (f : float<Degrees>) (omega : float<Degrees>)  =
-        let normalize ds = 
-            let unitCircle = ds % 360.<Degrees>
-            let degs = 
-                match unitCircle < 0.<Degrees> with
-                | true -> unitCircle + 360.0<Degrees>
-                | false -> unitCircle
-            degs
-
         let E = e
         let M = (normalize m)
         let M' = (normalize m') 
@@ -197,7 +208,147 @@ module Meeus =
         let final = r + correctedForQuarter
 
         (final, pieceWise)
+
+    let NutationApprox date = 
+        //Meeus Chapter 22
+        let T = T date
+
+        //Longitude of ascending node of Moon's mean orbit
+        let omega = 125.04452 - (1934.136261 * T) + (0.0020708 * T * T) + (T * T * T) / 450000.
        
+        // "If an accuracy of 0".5 in Δψ and of 0".1 in Δε are sufficient... "
+        let L = 280.4665<Degrees> + 36000.7698<Degrees> * T
+        let L' = 218.3165<Degrees> + 481267.8813<Degrees> * T
+
+        let omegaRad = float (deg2rad (omega * 1.0<Degrees>))
+        let LRad = float (deg2rad (L))
+        let L'Rad = float (deg2rad (L'))
+
+        let secondsToRads s = deg2rad (1.0<Degrees>/ 3600. * s)
+        //These are in seconds
+        let deltaPsiCoefficients = [-17.2; -1.32; -0.23; 0.21 ] |> List.map secondsToRads
+        let deltaEpsilonCoefficients = [9.20; 0.57; 0.10; -0.09 ] |> List.map secondsToRads
+
+        let opsPsi = [ sin (omegaRad); sin (2. * LRad); sin (2. * L'Rad); sin (2. * omegaRad) ]
+
+        let deltaPsi = 
+            let components = 
+                List.zip deltaPsiCoefficients opsPsi 
+                |> List.map (fun (a,b) -> a*b)
+            components 
+            |> List.sum
+            |> normalizeRadians
+            |> rad2arcsec
+
+        let opsEps = [ cos (omegaRad); cos (2. * LRad); cos (2. * L'Rad); cos (2. * omegaRad) ]
+
+        let deltaEpsilon = 
+            let components =
+                List.zip deltaEpsilonCoefficients opsEps
+                |> List.map (fun (a,b) -> a*b)
+            components 
+            |> List.sum
+            |> normalizeRadians
+            |> rad2arcsec
+
+        { DeltaPsi = deltaPsi; DeltaEpsilon = deltaEpsilon } 
+
+
+    let TrueObliquityOfEcliptic date = 
+        //Meeus 22.2 -- Do not use for >>hundreds of years from 2000CE
+        let T = T date
+        let coeffs = 
+            [ 
+            { Degrees = 23<Degrees>; Minutes = 26<ArcMinutes>; Seconds = 21.448<ArcSeconds> };
+            { Degrees = 0<Degrees>; Minutes = 0<ArcMinutes>; Seconds = -46.8150<ArcSeconds>};
+            { Degrees = 0<Degrees>; Minutes = 0<ArcMinutes>; Seconds = -0.00059<ArcSeconds>};
+            { Degrees = 0<Degrees>; Minutes = 0<ArcMinutes>; Seconds = 0.001813<ArcSeconds>}
+            ] |> List.map dms2deg
+        let ops = [1.0; T; T * T; T * T * T ]
+        let meanObliquity = 
+            List.zip coeffs ops
+            |> List.map (fun (a,b) -> a * b)
+            |> List.sum
+
+        let nutation = NutationApprox date
+        let deltaEpsInDegrees = arcsec2deg nutation.DeltaEpsilon
+        let trueObliquity = meanObliquity + deltaEpsInDegrees
+        trueObliquity
+
+    let SiderealTimeGreenwich date = 
+        //Meeus 12.3
+        let MeanSiderealTimeGreenwich date = 
+            let T = T date
+            let cs = [
+                100.46061837;
+                36000.770053608 * T;
+                0.000387933 * T * T;
+                - (T * T * T) / 38710000.;
+                ]
+            cs 
+            |> List.sum 
+            |> fun d -> d * 1.0<Degrees>
+            |> fun d -> normalize d
+
+        let mstInDegrees = MeanSiderealTimeGreenwich date
+        let siderealTime = mstInDegrees |> deg2hms
+
+        let nutation = NutationApprox date
+        let trueObliquityOfEcliptic = TrueObliquityOfEcliptic date
+        let cosEpsilon = cos (float( deg2rad (trueObliquityOfEcliptic) ) )
+
+        let correction = (nutation.DeltaPsi * cosEpsilon) / 15.0
+
+        let apparentSiderealTime = mstInDegrees + (arcsec2deg correction) |> deg2hms
+            
+        { MeanSiderealTime  = siderealTime; ApparentSiderealTime = apparentSiderealTime }
+       
+
+    let RisingAndSettingApprox longitude latitude theta0 ephemeris h0 = 
+        let delta2 = ephemeris.Day.Delta
+        //Meeus 15.1
+
+        //Note that this is an approximation that does not interpolate. So it is 
+
+        //Circumpolar test
+        let element = sin (float (deg2rad latitude)) * sin (float (deg2rad delta2))
+        if element < -1.0 || element > 1.0 then
+            raise (Exception("NotImplementedException -- circumpolar body"))
+
+        let H0 = 
+            let a = sin (float (deg2rad h0))
+            let b = sin (float (deg2rad latitude))
+            let c = sin (float (deg2rad delta2))
+            let num = a - b * c
+            let den = cos (float (deg2rad latitude)) * cos (float (deg2rad delta2))
+            num / den
+            |> acos
+            |> fun angleInRadians -> rad2deg (angleInRadians * 1.0<Radians>)
+            |> normalizePositive
+
+        let DayNormalize pct = 
+            match pct with 
+            | v when v < 0.0 -> pct + 1.0
+            | v when v > 1.0 -> pct - 1.0
+            | _ -> pct
+
+        let transit = (ephemeris.Day.Alpha + longitude - theta0) / 360.0<Degrees> |> DayNormalize
+        let rising = transit - (H0 / 360.0<Degrees>) |> DayNormalize
+        let setting = transit + (H0 / 360.0<Degrees>) |> DayNormalize
+
+        let fractionalDayToHMS pct = 
+            let hours = pct * 24.0
+            let hour = int (Math.Floor(hours))
+            let hourRemainder = hours - (float hour)
+            let minute = int (Math.Floor (hourRemainder * 60.0))
+            let seconds = hourRemainder - float minute
+            { Hours = hour; Minutes = minute; Seconds = seconds } 
+
+        let transitTime = fractionalDayToHMS transit
+        let risingTime = fractionalDayToHMS rising
+        let settingTime = fractionalDayToHMS setting
+
+        { Rising = risingTime; Transit = transitTime; Setting = settingTime } 
 
 module Moon = 
 
