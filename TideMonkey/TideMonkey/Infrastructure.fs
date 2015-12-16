@@ -28,6 +28,7 @@ type PredictionUnitsT =
 [<Measure>] type Degrees
 [<Measure>] type ArcSeconds
 [<Measure>] type ArcMinutes
+[<Measure>] type DecimalHours
 type DMS = { Degrees : int<Degrees>; Minutes : int<ArcMinutes>; Seconds : float<ArcSeconds> }
 type HMS = { Hours : int; Minutes : int; Seconds : float }
 
@@ -54,6 +55,8 @@ type AmplitudeT<[<Measure>] 'u> = { Value : float<'u>; Units : PredictionUnitsT 
 type ConstituentT<[<Measure>] 'speedT, [<Measure>] 'amplitudeT> = { Speed : SpeedT<'speedT>; FirstValidYear : Year; LastValidYear : Year; Amplitude : AmplitudeT<'amplitudeT>; Phase : float<Radians> ; Args: Map<Year, float<Degrees>>; Nodes : Map<Year,float>}
 
 type IntervalT = { Duration : float<Seconds> }
+
+type CoordinatesT = { Latitude : float<Degrees>; Longitude : float<Degrees> }
 
 module Assert = 
     let IsTrue (fn : unit -> bool) = 

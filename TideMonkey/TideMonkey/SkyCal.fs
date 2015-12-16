@@ -15,11 +15,13 @@ type NutationT = { DeltaPsi : float<ArcSeconds>; DeltaEpsilon : float<ArcSeconds
 
 type SiderealTimeT = { MeanSiderealTime : HMS; ApparentSiderealTime : HMS }
 
-type EphemerisEntryT = { Date: DateTime; Alpha : float<Degrees>; Delta : float<Degrees> }
+type EphemerisEntryT = { Date: DateTime; Alpha : float<Degrees>; Delta : float<Degrees>; ApparentSiderealTime : float<DecimalHours> }
 
 type EphemerisT = { Prior : EphemerisEntryT; Day : EphemerisEntryT; Following : EphemerisEntryT }
 
 type RisingTransitSettingT = { Rising : HMS; Transit : HMS; Setting : HMS }
+
+//type GreenwichLocalSiderealTimeT = { Date : DateTime; Time : float<DecimalHours> }
 
 module Calendar = 
 
@@ -30,6 +32,29 @@ module Calendar =
         let d = jde - 2415018.5
         DateTime.FromOADate(d)
 
+module Ephemeris = 
+    let private EphemerisData solarOrLunar =
+        let ls = System.IO.File.ReadAllLines("Resources/Greenwich" + solarOrLunar + "Ephemeris.txt")
+        let tail = ls |> Seq.skipWhile(fun l -> l <> "$$SOE") |> Seq.skip 1
+        let data = tail |> Seq.takeWhile(fun l -> l <> "$$EOE")
+        let rs = 
+            data 
+            |> Seq.map (fun d -> (d.Substring(0, 17), d.Substring(22, 9), d.Substring(32, 9), d.Substring(43,12)))
+            |> Seq.map (fun (julianDate, ra, dec, decimalHours) -> (float(julianDate)), float(ra), float(dec), float(decimalHours))
+            |> Seq.map (fun (jd, ra, dec, localSiderealTime) -> (jd, ra * 1.0<Degrees>, dec * 1.0<Degrees>, localSiderealTime * 1.0<DecimalHours>))
+            |> Seq.map (fun (jd, ra, dec, localSiderealTime) -> { Date = Calendar.FromJulianDate(jd); Alpha = ra; Delta = dec; ApparentSiderealTime = localSiderealTime })
+        rs
+
+
+    let GreenwichEphemeris (date : DateTime) solarOrLunar = 
+        let ephs = 
+            [| date.AddDays(-1.); date; date.AddDays(1.) |]
+            |> Seq.map (fun d ->
+                let jd = Calendar.ToJulianDate d
+                EphemerisData solarOrLunar |> Seq.find(fun r -> r.Date = d)
+                )
+            |> Array.ofSeq
+        { Prior = ephs.[0]; Day = ephs.[1]; Following = ephs.[2] } 
 
 (* Algorithms from Meeus' "Astronomical Algorithms, 2nd Ed." Willman-Bell, 2009 *)
 module Meeus = 
@@ -304,17 +329,21 @@ module Meeus =
         { MeanSiderealTime  = siderealTime; ApparentSiderealTime = apparentSiderealTime }
        
 
-    let RisingAndSettingApprox longitude latitude theta0 ephemeris h0 = 
+    let RisingAndSettingApprox coordinates ephemeris h0 = 
+        let latitude = coordinates.Latitude
+        let longitude = coordinates.Longitude
         let delta2 = ephemeris.Day.Delta
+        let theta0 = ephemeris.Day.ApparentSiderealTime
         //Meeus 15.1
 
-        //Note that this is an approximation that does not interpolate. So it is 
+        //Note that this is an approximation that does not interpolate. Relies on granularity of theta0 (apparent sidereal time)
 
         //Circumpolar test
         let element = sin (float (deg2rad latitude)) * sin (float (deg2rad delta2))
         if element < -1.0 || element > 1.0 then
             raise (Exception("NotImplementedException -- circumpolar body"))
 
+        //Obliquity 
         let H0 = 
             let a = sin (float (deg2rad h0))
             let b = sin (float (deg2rad latitude))
@@ -332,7 +361,9 @@ module Meeus =
             | v when v > 1.0 -> pct - 1.0
             | _ -> pct
 
-        let transit = (ephemeris.Day.Alpha + longitude - theta0) / 360.0<Degrees> |> DayNormalize
+        let theta0Degrees = theta0 * 360.0<Degrees> / 24.0<DecimalHours>
+
+        let transit = (ephemeris.Day.Alpha + longitude - theta0Degrees) / 360.0<Degrees> |> DayNormalize
         let rising = transit - (H0 / 360.0<Degrees>) |> DayNormalize
         let setting = transit + (H0 / 360.0<Degrees>) |> DayNormalize
 
@@ -340,9 +371,16 @@ module Meeus =
             let hours = pct * 24.0
             let hour = int (Math.Floor(hours))
             let hourRemainder = hours - (float hour)
-            let minute = int (Math.Floor (hourRemainder * 60.0))
-            let seconds = hourRemainder - float minute
-            { Hours = hour; Minutes = minute; Seconds = seconds } 
+            let minuteF = hourRemainder * 60.0
+            let minute = int (Math.Floor minuteF)
+            let seconds = (minuteF - float minute) * 60.0
+             
+            let (minutesPos, secondsPos) = 
+                match seconds < 0. with 
+                | true -> ((minute + 1), (seconds + 60.0))
+                | false -> (minute, seconds)
+
+            { Hours = hour; Minutes = minutesPos; Seconds = secondsPos } 
 
         let transitTime = fractionalDayToHMS transit
         let risingTime = fractionalDayToHMS rising

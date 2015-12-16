@@ -205,28 +205,76 @@ type SkyCalTests() =
         let t = new DateTime(1988, 03, 20)
         let longitude = 71.0833<Degrees>
         let latitude = 42.3333<Degrees>
-        let theta0 = 177.74208<Degrees>
+        let theta0 = 177.74208<Degrees> * 24.0<DecimalHours>/360.0<Degrees>
         let ephemeris = {
-            Prior = { Date = new DateTime(1988, 03, 19); Alpha = 40.68021<Degrees>; Delta = 18.04761<Degrees> };
-            Day = { Date = new DateTime(1988, 03, 20); Alpha = 41.73129<Degrees>; Delta = 18.44092<Degrees> };
-            Following = { Date = new DateTime(1988, 03, 21); Alpha = 42.78204<Degrees>; Delta = 18.82742<Degrees> }
+            Prior = { Date = new DateTime(1988, 03, 19); Alpha = 40.68021<Degrees>; Delta = 18.04761<Degrees>; ApparentSiderealTime = 0.<DecimalHours> };
+            Day = { Date = new DateTime(1988, 03, 20); Alpha = 41.73129<Degrees>; Delta = 18.44092<Degrees>; ApparentSiderealTime = theta0 };
+            Following = { Date = new DateTime(1988, 03, 21); Alpha = 42.78204<Degrees>; Delta = 18.82742<Degrees>; ApparentSiderealTime = 0.<DecimalHours> }
             }
         let h0 = -0.5667<Degrees>
         let deltaT = 56<Seconds>
-        let results = Meeus.RisingAndSettingApprox longitude latitude theta0 ephemeris h0 
+        let coords = { Longitude = longitude; Latitude = latitude } 
+        let results = Meeus.RisingAndSettingApprox coords ephemeris h0 
         //Notice that these are off by as much as a minute, because I do not interpolate for corrections
         Assert.AreEqual(25.0, float results.Rising.Minutes, 1.0)
         Assert.AreEqual(41.0, float results.Transit.Minutes, 1.0)
         Assert.AreEqual(55.0, float results.Setting.Minutes, 1.0)
  
     [<Test>]
+    member x.ProducesProperSunriseTimeFromJPLHorizonsEphemerisData() = 
+        let t = new DateTime(2015, 12, 15)
+        let coords = { Latitude = 51.4778<Degrees>; Longitude = 0.<Degrees> }
+        //Hand-copy
+        let ephemeris = {
+            //JDE: 245767.5, 245768.5, 245769.5
+            Prior = { Date = new DateTime(2016, 03, 20); Alpha = 359.82895<Degrees>; Delta = -0.07619<Degrees>; ApparentSiderealTime = 11.8637746274<DecimalHours> }
+            Day = { Date = new DateTime(2015, 03, 21); Alpha = 0.74011<Degrees>; Delta = 0.31877<Degrees>; ApparentSiderealTime = 11.9294827636<DecimalHours> }
+            Following = { Date = new DateTime(2015, 03, 22); Alpha =  1.65079<Degrees>; Delta = 0.71342<Degrees>; ApparentSiderealTime = 11.9951904412<DecimalHours> }
+            }
+
+        //Also hand-copied -- apparent sidereal time at t ofrom Greenwich, in degrees
+        let theta0 = ephemeris.Day.ApparentSiderealTime
+
+        let h0 = -0.8333<Degrees>
+
+        let results = Meeus.RisingAndSettingApprox coords ephemeris h0
+        Assert.AreEqual(6, int results.Rising.Hours)
+        Assert.AreEqual(0.0, float results.Rising.Minutes, 2.0)
+
+    [<Test>]
     member x.CanCalculateSunrise() = 
-        Assert.Fail()
+        let date = new DateTime(2016, 01, 06)
+        let coords = { Latitude = 51.4778<Degrees>; Longitude = 0.<Degrees> }
+        let h0 = -0.8333<Degrees> //Standard for Sun 
+        let ephemeris = Ephemeris.GreenwichEphemeris date "solar"
+
+        let results = Meeus.RisingAndSettingApprox coords ephemeris h0 
+        Assert.AreEqual(8, results.Rising.Hours)
+        Assert.AreEqual(5.0, float results.Rising.Minutes, 2.0)
+
+        let kona = { Latitude = 19.65<Degrees>; Longitude = 155.9942<Degrees> }
+        let konaRise = Meeus.RisingAndSettingApprox kona ephemeris h0
+        //6:59AM local == 1659 UT
+        Assert.AreEqual(16, konaRise.Rising.Hours) 
+        Assert.AreEqual(59., float konaRise.Rising.Minutes, 2.0)
+
 
     [<Test>]
     member x.CanCalculateSunsets() = 
-        Assert.Fail()
+        let date = new DateTime(2016, 01, 06)
+        let coords = { Latitude = 51.4778<Degrees>; Longitude = 0.<Degrees> }
+        let h0 = -0.8333<Degrees> //Standard for Sun 
+        let ephemeris = Ephemeris.GreenwichEphemeris date "solar"
 
+        let results = Meeus.RisingAndSettingApprox coords ephemeris h0
+        Assert.AreEqual(16, results.Setting.Hours)
+        Assert.AreEqual(7.0, float results.Setting.Minutes, 2.0)
+
+        let kona = { Latitude = 19.65<Degrees>; Longitude = 155.9942<Degrees> }
+        let konaSet = Meeus.RisingAndSettingApprox kona ephemeris h0
+        //5:59PM local == 0359 UT
+        Assert.AreEqual(3, konaSet.Setting.Hours) 
+        Assert.AreEqual(59., float konaSet.Setting.Minutes, 2.0)
 
     [<Test>]
     member x.CanCalculateMoonrise() = 
