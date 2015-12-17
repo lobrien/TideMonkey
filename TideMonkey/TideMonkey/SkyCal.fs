@@ -15,7 +15,7 @@ type NutationT = { DeltaPsi : float<ArcSeconds>; DeltaEpsilon : float<ArcSeconds
 
 type SiderealTimeT = { MeanSiderealTime : HMS; ApparentSiderealTime : HMS }
 
-type EphemerisEntryT = { Date: DateTime; Alpha : float<Degrees>; Delta : float<Degrees>; ApparentSiderealTime : float<DecimalHours> }
+type EphemerisEntryT = { Date: DateTime; RightAscension : float<Degrees>; Declination : float<Degrees>; ApparentSiderealTime : float<DecimalHours> }
 
 type EphemerisT = { Prior : EphemerisEntryT; Day : EphemerisEntryT; Following : EphemerisEntryT }
 
@@ -42,7 +42,7 @@ module Ephemeris =
             |> Seq.map (fun d -> (d.Substring(0, 17), d.Substring(22, 9), d.Substring(32, 9), d.Substring(43,12)))
             |> Seq.map (fun (julianDate, ra, dec, decimalHours) -> (float(julianDate)), float(ra), float(dec), float(decimalHours))
             |> Seq.map (fun (jd, ra, dec, localSiderealTime) -> (jd, ra * 1.0<Degrees>, dec * 1.0<Degrees>, localSiderealTime * 1.0<DecimalHours>))
-            |> Seq.map (fun (jd, ra, dec, localSiderealTime) -> { Date = Calendar.FromJulianDate(jd); Alpha = ra; Delta = dec; ApparentSiderealTime = localSiderealTime })
+            |> Seq.map (fun (jd, ra, dec, localSiderealTime) -> { Date = Calendar.FromJulianDate(jd); RightAscension = ra; Declination = dec; ApparentSiderealTime = localSiderealTime })
         rs
 
 
@@ -125,6 +125,12 @@ module Meeus =
             | true -> unitCircle + 360.0<Degrees>
             | false -> unitCircle
         degs
+
+    //http://eclipse.gsfc.nasa.gov/SEhelp/deltatpoly2004.html (not Meeus!)
+    let DynamicalTimeDifferenceFromUniversalTime year = 
+        let t = (float year - 2000.)
+        let deltaT = 62.92 + 0.32217 * t + 0.005589 * t * t
+        deltaT
 
     //True (apparent) phase corrections (constants pp. 351-352)
     let ApparentPhaseNonPlanetaryCorrections moonPhase (e : float) (m : float<Degrees>) (m': float<Degrees>)  (f : float<Degrees>) (omega : float<Degrees>)  =
@@ -327,13 +333,23 @@ module Meeus =
         let apparentSiderealTime = mstInDegrees + (arcsec2deg correction) |> deg2hms
             
         { MeanSiderealTime  = siderealTime; ApparentSiderealTime = apparentSiderealTime }
-       
 
-    let RisingAndSettingApprox coordinates ephemeris h0 = 
+    //Meeus 3.3
+    let Interpolate y2 n a b c = y2 + (n / 2.) * (a + b + n * c)
+
+    //Meeus 13.6
+    let AltAz localHourAngle observersLatitude declination = 
+        let H = deg2rad localHourAngle |> float
+        let phi = deg2rad observersLatitude |> float
+        let delta = deg2rad declination |> float
+        let Azimuth = sin H / (cos (H) * sin (phi) - tan (delta) * cos (phi)) |> atan |> fun r -> rad2deg (r * 1.0<Radians>)
+        let Altitude = sin (phi) * sin (delta) + cos (phi) * cos (delta) * cos (H) |> asin |> fun r -> rad2deg (r * 1.0<Radians>)
+        (Altitude, Azimuth)
+       
+    let RisingAndSetting coordinates ephemeris h0 = 
         let latitude = coordinates.Latitude
         let longitude = coordinates.Longitude
-        let delta2 = ephemeris.Day.Delta
-        let theta0 = ephemeris.Day.ApparentSiderealTime
+        let delta2 = ephemeris.Day.Declination
         //Meeus 15.1
 
         //Note that this is an approximation that does not interpolate. Relies on granularity of theta0 (apparent sidereal time)
@@ -343,7 +359,7 @@ module Meeus =
         if element < -1.0 || element > 1.0 then
             raise (Exception("NotImplementedException -- circumpolar body"))
 
-        //Obliquity 
+        //Approximate time 
         let H0 = 
             let a = sin (float (deg2rad h0))
             let b = sin (float (deg2rad latitude))
@@ -361,11 +377,67 @@ module Meeus =
             | v when v > 1.0 -> pct - 1.0
             | _ -> pct
 
-        let theta0Degrees = theta0 * 360.0<Degrees> / 24.0<DecimalHours>
+        let theta0 = ephemeris.Day.ApparentSiderealTime * 360.0<Degrees> / 24.0<DecimalHours>
 
-        let transit = (ephemeris.Day.Alpha + longitude - theta0Degrees) / 360.0<Degrees> |> DayNormalize
-        let rising = transit - (H0 / 360.0<Degrees>) |> DayNormalize
-        let setting = transit + (H0 / 360.0<Degrees>) |> DayNormalize
+        let transitDegrees = ephemeris.Day.RightAscension + longitude - theta0 |> normalizePositive
+        let transitPercentage = transitDegrees / 360.0<Degrees>
+        let m0 = transitPercentage |> DayNormalize
+        let m1 = m0 - (H0 / 360.0<Degrees>) |> DayNormalize
+        let m2 = m0 + (H0 / 360.0<Degrees>) |> DayNormalize
+
+
+        let TransitCorrection m isTransit = 
+            //m is the (approximate) percentage of day of the event
+            let siderealTimeInGreenwich = theta0 + 360.985647<Degrees> * m
+            let deltaT = DynamicalTimeDifferenceFromUniversalTime ephemeris.Day.Date.Year
+            //Assert(deltaT = 69.5 for 2016)
+            let n = m + deltaT / 86400.
+            let raFn (ephEntry : EphemerisEntryT) = ephEntry.RightAscension
+            let decFn (ephEntry : EphemerisEntryT) = ephEntry.Declination
+
+            let (alpha, delta) = 
+                [ raFn ; decFn ] 
+                |> List.map (fun fn -> 
+                    let y2 = fn ephemeris.Day |> float
+                    let a = fn ephemeris.Day - fn ephemeris.Prior |> float
+                    let b = fn ephemeris.Following - fn ephemeris.Day |> float
+                    let c = fn ephemeris.Prior + fn ephemeris.Following - 2. * (fn ephemeris.Day) |> float
+
+                    let y = Interpolate y2 n a b c
+                    y
+                    )
+                |> Array.ofList 
+                |> fun l -> (l.[0] * 1.0<Degrees>, l.[1] * 1.0<Degrees>)
+
+            let rec NormalizeHalfCircle (angle : float<Degrees>) = 
+                match angle with 
+                | ha when ha < -180.0<Degrees> -> NormalizeHalfCircle (ha + 360.0<Degrees>)
+                | ha when ha > 180.0<Degrees> -> NormalizeHalfCircle (ha - 360.0<Degrees>)
+                | _ -> angle
+
+
+            let localHourAngle = 
+                siderealTimeInGreenwich - longitude - alpha
+                |> NormalizeHalfCircle
+
+
+            let (altitude, azimuth) = AltAz localHourAngle latitude delta 
+
+            match isTransit with 
+            | true -> - localHourAngle / 360.0<Degrees>
+            | false -> 
+                let deltaR = deg2rad delta |> float
+                let phi = deg2rad latitude |> float
+                let H = deg2rad localHourAngle |> float
+                let deltaM = (altitude - h0) / (360.<Degrees> * cos(deltaR) * cos (phi) * sin(H) )
+                deltaM
+
+        let correctionValues = [ (m0, true); (m1, false); (m2, false)] |> List.map (fun (m, isTransit) -> TransitCorrection m isTransit) |> Array.ofList 
+
+        let transit = m0 + correctionValues.[0] 
+       
+        let rising = m1 + correctionValues.[1]
+        let setting = m2 + correctionValues.[2]
 
         let fractionalDayToHMS pct = 
             let hours = pct * 24.0
