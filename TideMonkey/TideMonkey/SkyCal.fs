@@ -19,7 +19,7 @@ type EphemerisEntryT = { Date: DateTime; RightAscension : float<Degrees>; Declin
 
 type EphemerisT = { Prior : EphemerisEntryT; Day : EphemerisEntryT; Following : EphemerisEntryT }
 
-type RisingTransitSettingT = { Rising : HMS; Transit : HMS; Setting : HMS }
+type RisingTransitSettingT = { Rising : DateTime; Transit : DateTime; Setting : DateTime }
 
 //type GreenwichLocalSiderealTimeT = { Date : DateTime; Time : float<DecimalHours> }
 
@@ -458,7 +458,15 @@ module Meeus =
         let risingTime = fractionalDayToHMS rising
         let settingTime = fractionalDayToHMS setting
 
-        { Rising = risingTime; Transit = transitTime; Setting = settingTime } 
+        let midnight = 
+            new DateTime(ephemeris.Day.Date.Year, ephemeris.Day.Date.Month, ephemeris.Day.Date.Day) 
+            |> fun t -> DateTime.SpecifyKind(t, DateTimeKind.Utc)
+
+        let transitDateTime = midnight.AddHours(float transitTime.Hours).AddMinutes(float transitTime.Minutes).AddSeconds(transitTime.Seconds)
+        let risingDateTime = midnight.AddHours(float risingTime.Hours).AddMinutes(float risingTime.Minutes).AddSeconds(risingTime.Seconds)
+        let settingDateTime = midnight.AddHours(float settingTime.Hours).AddMinutes(float settingTime.Minutes).AddSeconds(settingTime.Seconds)
+
+        { Rising = risingDateTime; Transit = transitDateTime; Setting = settingDateTime } 
 
 module Moon = 
 
