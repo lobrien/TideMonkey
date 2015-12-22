@@ -64,6 +64,10 @@ module Assert =
         | true -> ignore()
         | false -> raise (new Exception("AssertionFailed"))
 
+    let LogException x = 
+        printf "%A" x
+        raise x
+
 module Geometry = 
     let radiansPerDegree = (Math.PI* 2.0<Radians>)/360.0<Degrees>
     let degreesPerRadian = 360.0<Degrees>/(Math.PI * 2.0<Radians>)

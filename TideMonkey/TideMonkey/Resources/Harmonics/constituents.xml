@@ -1,0 +1,895 @@
+<NewDataSet>
+  <Table>
+    <name>J1</name>
+    <definition>Basic 1 1 1 -1 0 -90    0 -1 0 0 0 0     76</definition>
+    <speed>15.5854433</speed>
+  </Table>
+  <Table>
+    <name>K1</name>
+    <definition>Compound 0 1 0 0 0 0 0 0</definition>
+    <speed>15.0410686</speed>
+  </Table>
+  <Table>
+    <name>K2</name>
+    <definition>Compound 0 0 0 0 0 0 0 1</definition>
+    <speed>30.0821373</speed>
+  </Table>
+  <Table>
+    <name>L2</name>
+    <definition>Compound 0 0 0 0 0 0 1 0</definition>
+    <speed>29.5284789</speed>
+  </Table>
+  <Table>
+    <name>M1</name>
+    <definition>Basic 1 -1 1 0 0 -90    1 -1 0 0 1 0     206</definition>
+    <speed>14.4966939</speed>
+  </Table>
+  <Table>
+    <name>M2</name>
+    <definition>Compound 0 0 0 1 0 0 0 0</definition>
+    <speed>28.9841042</speed>
+  </Table>
+  <Table>
+    <name>M3</name>
+    <definition>Basic 3 -3 3 0 0 0      3 -3 0 0 0 0     149</definition>
+    <speed>43.4761563</speed>
+  </Table>
+  <Table>
+    <name>M4</name>
+    <definition>Compound 0 0 0 2 0 0 0 0</definition>
+    <speed>57.9682084</speed>
+  </Table>
+  <Table>
+    <name>M6</name>
+    <definition>Compound 0 0 0 3 0 0 0 0</definition>
+    <speed>86.9523126</speed>
+  </Table>
+  <Table>
+    <name>M8</name>
+    <definition>Compound 0 0 0 4 0 0 0 0</definition>
+    <speed>115.9364169</speed>
+  </Table>
+  <Table>
+    <name>N2</name>
+    <definition>Compound 0 0 0 0 0 1 0 0</definition>
+    <speed>28.4397295</speed>
+  </Table>
+  <Table>
+    <name>2N2</name>
+    <definition>Basic 2 -4 2 2 0 0      2 -2 0 0 0 0     78</definition>
+    <speed>27.8953548</speed>
+  </Table>
+  <Table>
+    <name>O1</name>
+    <definition>Compound 1 0 0 0 0 0 0 0</definition>
+    <speed>13.9430356</speed>
+  </Table>
+  <Table>
+    <name>OO1</name>
+    <definition>Basic 1 2 1 0 0 -90     -2 -1 0 0 0 0    77</definition>
+    <speed>16.1391017</speed>
+  </Table>
+  <Table>
+    <name>P1</name>
+    <definition>Compound 0 0 1 0 0 0 0 0</definition>
+    <speed>14.9589314</speed>
+  </Table>
+  <Table>
+    <name>Q1</name>
+    <definition>Compound 0 0 0 0 0 0 0 0 1</definition>
+    <speed>13.3986609</speed>
+  </Table>
+  <Table>
+    <name>2Q1</name>
+    <definition>Basic 1 -4 1 2 0 90     2 -1 0 0 0 0     75</definition>
+    <speed>12.8542862</speed>
+  </Table>
+  <Table>
+    <name>R2</name>
+    <definition>Basic 2 0 1 0 -1 180    0 0 0 0 0 0      1</definition>
+    <speed>30.0410667</speed>
+  </Table>
+  <Table>
+    <name>S1</name>
+    <definition>Basic 1 0 0 0 0 0       0 0 0 0 0 0      1</definition>
+    <speed>15</speed>
+  </Table>
+  <Table>
+    <name>S2</name>
+    <definition>Compound 0 0 0 0 1 0 0 0</definition>
+    <speed>30</speed>
+  </Table>
+  <Table>
+    <name>S4</name>
+    <definition>Compound 0 0 0 0 2 0 0 0</definition>
+    <speed>60</speed>
+  </Table>
+  <Table>
+    <name>S6</name>
+    <definition>Compound 0 0 0 0 3 0 0 0</definition>
+    <speed>90</speed>
+  </Table>
+  <Table>
+    <name>T2</name>
+    <definition>Basic 2 0 -1 0 1 0      0 0 0 0 0 0      1</definition>
+    <speed>29.9589333</speed>
+  </Table>
+  <Table>
+    <name>LDA2</name>
+    <definition>Basic 2 -1 0 1 0 180    2 -2 0 0 0 0     78</definition>
+    <speed>29.4556253</speed>
+  </Table>
+  <Table>
+    <name>MU2</name>
+    <definition>Basic 2 -4 4 0 0 0      2 -2 0 0 0 0     78</definition>
+    <speed>27.9682084</speed>
+  </Table>
+  <Table>
+    <name>NU2</name>
+    <definition>Basic 2 -3 4 -1 0 0     2 -2 0 0 0 0     78</definition>
+    <speed>28.5125831</speed>
+  </Table>
+  <Table>
+    <name>RHO1</name>
+    <definition>Basic 1 -3 3 -1 0 90    2 -1 0 0 0 0     75</definition>
+    <speed>13.4715145</speed>
+  </Table>
+  <Table>
+    <name>MK3</name>
+    <definition>Compound 0 1 0 1 0 0 0 0</definition>
+    <speed>44.0251729</speed>
+  </Table>
+  <Table>
+    <name>2MK3</name>
+    <definition>Compound 0 -1 0 2 0 0 0 0</definition>
+    <speed>42.9271398</speed>
+  </Table>
+  <Table>
+    <name>MN4</name>
+    <definition>Compound 0 0 0 1 0 1 0 0</definition>
+    <speed>57.4238337</speed>
+  </Table>
+  <Table>
+    <name>MS4</name>
+    <definition>Compound 0 0 0 1 1 0 0 0</definition>
+    <speed>58.9841042</speed>
+  </Table>
+  <Table>
+    <name>2SM2</name>
+    <definition>Compound 0 0 0 -1 2 0 0 0</definition>
+    <speed>31.0158958</speed>
+  </Table>
+  <Table>
+    <name>MF</name>
+    <definition>Basic 0 2 0 0 0 0       -2 0 0 0 0 0     74</definition>
+    <speed>1.0980331</speed>
+  </Table>
+  <Table>
+    <name>MSF</name>
+    <definition>Compound 0 0 0 -1 1 0 0 0</definition>
+    <speed>1.0158958</speed>
+  </Table>
+  <Table>
+    <name>MM</name>
+    <definition>Basic 0 1 0 -1 0 0      0 0 0 0 0 0      73</definition>
+    <speed>0.5443747</speed>
+  </Table>
+  <Table>
+    <name>SA</name>
+    <definition>Basic 0 0 1 0 0 0       0 0 0 0 0 0      1</definition>
+    <speed>0.0410686</speed>
+  </Table>
+  <Table>
+    <name>SSA</name>
+    <definition>Basic 0 0 2 0 0 0       0 0 0 0 0 0      1</definition>
+    <speed>0.0821373</speed>
+  </Table>
+  <Table>
+    <name>SA-IOS</name>
+    <definition>Doodson 0 0 1 0 -1 0    0</definition>
+    <speed>0.0410667</speed>
+  </Table>
+  <Table>
+    <name>MF-IOS</name>
+    <definition>Doodson 0 2 0 0  0 0    0</definition>
+    <speed>1.0980331</speed>
+  </Table>
+  <Table>
+    <name>S1-IOS</name>
+    <definition>Doodson 1 0 0 0 1 -90   2
+  0  0 -2 .0  0.3534     0  1  0 .50 0.0264</definition>
+    <speed>15.000002</speed>
+  </Table>
+  <Table>
+    <name>OO1-IOS</name>
+    <definition>Doodson 1  2  1  0  0 -90    8
+  -2 -1  0 .50 0.0037    -2  0  0 .0  0.1496    -2  1  0 .0  0.0296
+  -1  0  0 .25 0.0240R1  -1  1  0 .25 0.0099R1   0  1  0 .0  0.6398
+  0  2  0 .0  0.1342     0  3  0 .0  0.0086</definition>
+    <speed>16.1391017</speed>
+  </Table>
+  <Table>
+    <name>R2-IOS</name>
+    <definition>Doodson 2 0 1 0 -1 180    2
+  0  0  2 .50 0.2535     0  1  2 .0  0.0141</definition>
+    <speed>30.0410667</speed>
+  </Table>
+  <Table>
+    <name>A7</name>
+    <definition>Basic 0 3 0 -1 0 0      -2 0 0 0 0 0     74</definition>
+    <speed>1.6424078</speed>
+  </Table>
+  <Table>
+    <name>2MK5</name>
+    <definition>Compound 0  1  0  2  0  0  0  0</definition>
+    <speed>73.0092771</speed>
+  </Table>
+  <Table>
+    <name>2MK6</name>
+    <definition>Compound 0  0  0  2  0  0  0  1</definition>
+    <speed>88.0503457</speed>
+  </Table>
+  <Table>
+    <name>2MN2</name>
+    <definition>Compound 0  0  0  2  0 -1  0  0</definition>
+    <speed>29.5284789</speed>
+  </Table>
+  <Table>
+    <name>2MN6</name>
+    <definition>Compound 0  0  0  2  0  1  0  0</definition>
+    <speed>86.4079379</speed>
+  </Table>
+  <Table>
+    <name>2MS6</name>
+    <definition>Compound 0  0  0  2  1  0  0  0</definition>
+    <speed>87.9682084</speed>
+  </Table>
+  <Table>
+    <name>2NM6</name>
+    <definition>Compound 0  0  0  1  0  2  0  0</definition>
+    <speed>85.8635632</speed>
+  </Table>
+  <Table>
+    <name>2SK5</name>
+    <definition>Compound 0  1  0  0  2  0  0  0</definition>
+    <speed>75.0410686</speed>
+  </Table>
+  <Table>
+    <name>2SM6</name>
+    <definition>Compound 0  0  0  1  2  0  0  0</definition>
+    <speed>88.9841042</speed>
+  </Table>
+  <Table>
+    <name>3MK7</name>
+    <definition>Compound 0  1  0  3  0  0  0  0</definition>
+    <speed>101.9933813</speed>
+  </Table>
+  <Table>
+    <name>3MN8</name>
+    <definition>Compound 0  0  0  3  0  1  0  0</definition>
+    <speed>115.3920422</speed>
+  </Table>
+  <Table>
+    <name>3MS2</name>
+    <definition>Compound 0  0  0  3 -2  0  0  0</definition>
+    <speed>26.9523126</speed>
+  </Table>
+  <Table>
+    <name>3MS4</name>
+    <definition>Compound 0  0  0  3 -1  0  0  0</definition>
+    <speed>56.9523126</speed>
+  </Table>
+  <Table>
+    <name>3MS8</name>
+    <definition>Compound 0  0  0  3  1  0  0  0</definition>
+    <speed>116.9523126</speed>
+  </Table>
+  <Table>
+    <name>ALP1</name>
+    <definition>Doodson 1 -5 3 1 0 90     2
+  -1  0  0 .75 0.0360R1   0 -1  0 .00 0.1906</definition>
+    <speed>12.3827651</speed>
+  </Table>
+  <Table>
+    <name>BET1</name>
+    <definition>Doodson 1 -1 -1 1 0 -90   1
+  0 -1  0 .00 0.2266</definition>
+    <speed>14.4145567</speed>
+  </Table>
+  <Table>
+    <name>CHI1</name>
+    <definition>Basic 1 -1 3 -1 0 -90   0 -1 0 0 0 0     76</definition>
+    <speed>14.5695476</speed>
+  </Table>
+  <Table>
+    <name>H1</name>
+    <definition>Doodson 2 -2 1 0 1 180    2
+  0 -1  0 .50 0.0224     1  0 -1 .50 0.0447</definition>
+    <speed>28.9430375</speed>
+  </Table>
+  <Table>
+    <name>H2</name>
+    <definition>Doodson 2 -2 3 0 -1 0     1
+  0 -1  0 .50 0.0217</definition>
+    <speed>29.0251709</speed>
+  </Table>
+  <Table>
+    <name>KJ2</name>
+    <definition>Basic 2 1 2 -1 0 0      0 -2 0 0 0 0     79</definition>
+    <speed>30.626512</speed>
+  </Table>
+  <Table>
+    <name>ETA2</name>
+    <definition>Doodson 2 1 2 -1 0 0      7
+  0 -1  0 .50 0.0187     0  1  0 .0  0.4355     0  2  0 .0  0.0467
+  1  0  0 .75 0.0747R2   1  1  0 .75 0.0482R2   1  2  0 .75 0.0093R2
+  2  0  0 .50 0.0078</definition>
+    <speed>30.626512</speed>
+  </Table>
+  <Table>
+    <name>KQ1</name>
+    <definition>Basic 1 3 1 -1 0 -90    -2 -1 0 0 0 0    77</definition>
+    <speed>16.6834764</speed>
+  </Table>
+  <Table>
+    <name>UPS1</name>
+    <definition>Doodson 1 3 1 -1 0 -90    5
+  -2  0  0 .00 0.0611     0  1  0 .00 0.6399     0  2  0 .00 0.1318
+  1  0  0 .25 0.0289R1   1  1  0 .25 0.0257R1</definition>
+    <speed>16.6834764</speed>
+  </Table>
+  <Table>
+    <name>M10</name>
+    <definition>Compound 0 0 0 5 0 0 0 0</definition>
+    <speed>144.9205211</speed>
+  </Table>
+  <Table>
+    <name>M12</name>
+    <definition>Compound 0 0 0 6 0 0 0 0</definition>
+    <speed>173.9046253</speed>
+  </Table>
+  <Table>
+    <name>MK4</name>
+    <definition>Compound 0  0  0  1  0  0  0  1</definition>
+    <speed>59.0662415</speed>
+  </Table>
+  <Table>
+    <name>MKS2</name>
+    <definition>Compound 0  0  0  1 -1  0  0  1</definition>
+    <speed>29.0662415</speed>
+  </Table>
+  <Table>
+    <name>MNS2</name>
+    <definition>Compound 0  0  0  1 -1  1  0  0</definition>
+    <speed>27.4238337</speed>
+  </Table>
+  <Table>
+    <name>EPS2</name>
+    <definition>Doodson 2 -5 4 1 0 0   3
+  -1 -1  0 .25 0.0075R2  -1  0  0 .25 0.0402R2   0 -1  0 .50 0.0373</definition>
+    <speed>27.4238337</speed>
+  </Table>
+  <Table>
+    <name>MO3</name>
+    <definition>Compound 1 0 0 1 0 0 0 0</definition>
+    <speed>42.9271398</speed>
+  </Table>
+  <Table>
+    <name>MP1</name>
+    <definition>Basic 1 -2 3 0 0 -90    0 -1 0 0 0 0     76</definition>
+    <speed>14.0251729</speed>
+  </Table>
+  <Table>
+    <name>TAU1</name>
+    <definition>Doodson 1 -2 3 0 0 -90    5
+  -2  0  0 .0  0.0446    -1  0  0 .25 0.0426R1   0 -1  0 .50 0.0284
+  0  1  0 .50 0.2170     0  2  0 .50 0.0142</definition>
+    <speed>14.0251729</speed>
+  </Table>
+  <Table>
+    <name>MPS2</name>
+    <definition>Compound 0 0 1 1 0 0 0 0 0 0 -1</definition>
+    <speed>28.9430356</speed>
+  </Table>
+  <Table>
+    <name>MSK6</name>
+    <definition>Compound 0  0  0  1  1  0  0  1</definition>
+    <speed>89.0662415</speed>
+  </Table>
+  <Table>
+    <name>MSM</name>
+    <definition>Basic 0 1 -2 1 0 0      0 0 0 0 0 0      73</definition>
+    <speed>0.4715211</speed>
+  </Table>
+  <Table>
+    <name>MSN2</name>
+    <definition>Compound 0  0  0  1  1 -1  0  0</definition>
+    <speed>30.5443747</speed>
+  </Table>
+  <Table>
+    <name>MSN6</name>
+    <definition>Compound 0  0  0  1  1  1  0  0</definition>
+    <speed>87.4238337</speed>
+  </Table>
+  <Table>
+    <name>NLK2</name>
+    <definition>Compound 0 0 0 0 0 1 1 -1</definition>
+    <speed>27.8860711</speed>
+  </Table>
+  <Table>
+    <name>NO1</name>
+    <definition>Compound -1 0 0 0 0 1 0 0</definition>
+    <speed>14.4966939</speed>
+  </Table>
+  <Table>
+    <name>OP2</name>
+    <definition>Compound 1  0  1  0  0  0  0  0</definition>
+    <speed>28.9019669</speed>
+  </Table>
+  <Table>
+    <name>OQ2</name>
+    <definition>Doodson 2 -5 2 3 0 0   2
+  -1  0  0 .25 0.1042R2   0 -1  0 .50 0.0386</definition>
+    <speed>27.3509801</speed>
+  </Table>
+  <Table>
+    <name>PHI1</name>
+    <definition>Basic 1 0 3 0 0 -90     0 0 0 0 0 0      1</definition>
+    <speed>15.1232059</speed>
+  </Table>
+  <Table>
+    <name>KP1</name>
+    <definition>Compound 0 0 -1 0 0 0 0 1</definition>
+    <speed>15.1232059</speed>
+  </Table>
+  <Table>
+    <name>PI1</name>
+    <definition>Basic 1 0 -2 0 1 90     0 0 0 0 0 0      1</definition>
+    <speed>14.9178647</speed>
+  </Table>
+  <Table>
+    <name>TK1</name>
+    <definition>Basic 1 0 -2 0 1 90     0 0 1 0 0 0      227</definition>
+    <speed>14.9178647</speed>
+  </Table>
+  <Table>
+    <name>PSI1</name>
+    <definition>Basic 1 0 2 0 -1 -90    0 0 0 0 0 0      1</definition>
+    <speed>15.0821353</speed>
+  </Table>
+  <Table>
+    <name>RP1</name>
+    <definition>Basic 1 0 2 0 -1 90     0 0 0 0 0 0      1</definition>
+    <speed>15.0821353</speed>
+  </Table>
+  <Table>
+    <name>S3</name>
+    <definition>Basic 3 0 0 0 0 0       0 0 0 0 0 0      1</definition>
+    <speed>45</speed>
+  </Table>
+  <Table>
+    <name>SIG1</name>
+    <definition>Basic 1 -4 3 0 0 90     2 -1 0 0 0 0     75</definition>
+    <speed>12.9271398</speed>
+  </Table>
+  <Table>
+    <name>SK3</name>
+    <definition>Compound 0  1  0  0  1  0  0  0</definition>
+    <speed>45.0410686</speed>
+  </Table>
+  <Table>
+    <name>SK4</name>
+    <definition>Compound 0 0 0 0 1 0 0 1</definition>
+    <speed>60.0821373</speed>
+  </Table>
+  <Table>
+    <name>SN4</name>
+    <definition>Compound 0  0  0  0  1  1  0  0</definition>
+    <speed>58.4397295</speed>
+  </Table>
+  <Table>
+    <name>SNK6</name>
+    <definition>Compound 0 0 0 0 1 1 0 1</definition>
+    <speed>88.5218668</speed>
+  </Table>
+  <Table>
+    <name>SO1</name>
+    <definition>Basic 1 2 -1 0 0 -90    0 -1 0 0 0 0     76</definition>
+    <speed>16.0569644</speed>
+  </Table>
+  <Table>
+    <name>SO3</name>
+    <definition>Compound 1  0  0  0  1  0  0  0</definition>
+    <speed>43.9430356</speed>
+  </Table>
+  <Table>
+    <name>THE1</name>
+    <definition>Basic 1 1 -1 1 0 -90    0 -1 0 0 0 0     76</definition>
+    <speed>15.5125897</speed>
+  </Table>
+  <Table>
+    <name>2PO1</name>
+    <definition>Compound -1  0  2  0  0  0  0  0</definition>
+    <speed>15.9748271</speed>
+  </Table>
+  <Table>
+    <name>2NS2</name>
+    <definition>Compound 0  0  0  0 -1  2  0  0</definition>
+    <speed>26.879459</speed>
+  </Table>
+  <Table>
+    <name>MLN2S2</name>
+    <definition>Compound 0  0  0  1 -2  1  1  0</definition>
+    <speed>26.9523126</speed>
+  </Table>
+  <Table>
+    <name>2ML2S2</name>
+    <definition>Compound 0  0  0  2 -2  0  1  0</definition>
+    <speed>27.4966873</speed>
+  </Table>
+  <Table>
+    <name>SKM2</name>
+    <definition>Compound 0  0  0 -1  1  0  0  1</definition>
+    <speed>31.0980331</speed>
+  </Table>
+  <Table>
+    <name>2MS2K2</name>
+    <definition>Compound 0  0  0  2  1  0  0 -2</definition>
+    <speed>27.8039339</speed>
+  </Table>
+  <Table>
+    <name>MKL2S2</name>
+    <definition>Compound 0  0  0  1 -2  0  1  1</definition>
+    <speed>28.5947204</speed>
+  </Table>
+  <Table>
+    <name>M2(KS)2</name>
+    <definition>Compound 0  0  0  1 -2  0  0  2</definition>
+    <speed>29.1483788</speed>
+  </Table>
+  <Table>
+    <name>2SN(MK)2</name>
+    <definition>Compound 0  0  0 -1  2  1  0 -1</definition>
+    <speed>29.373488</speed>
+  </Table>
+  <Table>
+    <name>2KM(SN)2</name>
+    <definition>Compound 0  0  0  1 -1 -1  0  2</definition>
+    <speed>30.7086493</speed>
+  </Table>
+  <Table>
+    <name>NO3</name>
+    <definition>Compound 1  0  0  0  0  1  0  0</definition>
+    <speed>42.3827651</speed>
+  </Table>
+  <Table>
+    <name>2MLS4</name>
+    <definition>Compound 0  0  0  2 -1  0  1  0</definition>
+    <speed>57.4966873</speed>
+  </Table>
+  <Table>
+    <name>ML4</name>
+    <definition>Compound 0  0  0  1  0  0  1  0</definition>
+    <speed>58.5125831</speed>
+  </Table>
+  <Table>
+    <name>N4</name>
+    <definition>Compound 0  0  0  0  0  2  0  0</definition>
+    <speed>56.879459</speed>
+  </Table>
+  <Table>
+    <name>SL4</name>
+    <definition>Compound 0  0  0  0  1  0  1  0</definition>
+    <speed>59.5284789</speed>
+  </Table>
+  <Table>
+    <name>MNO5</name>
+    <definition>Compound 1  0  0  1  0  1  0  0</definition>
+    <speed>71.3668693</speed>
+  </Table>
+  <Table>
+    <name>2MO5</name>
+    <definition>Compound 1  0  0  2  0  0  0  0</definition>
+    <speed>71.911244</speed>
+  </Table>
+  <Table>
+    <name>MSK5</name>
+    <definition>Compound 0  1  0  1  1  0  0  0</definition>
+    <speed>74.0251729</speed>
+  </Table>
+  <Table>
+    <name>3KM5</name>
+    <definition>Compound 0  3  0  1  0  0  0  0</definition>
+    <speed>74.1073101</speed>
+  </Table>
+  <Table>
+    <name>2MP5</name>
+    <definition>Compound 0  0  1  2  0  0  0  0</definition>
+    <speed>72.9271398</speed>
+  </Table>
+  <Table>
+    <name>3MP5</name>
+    <definition>Compound 0  0 -1  3  0  0  0  0</definition>
+    <speed>71.9933813</speed>
+  </Table>
+  <Table>
+    <name>MNK5</name>
+    <definition>Compound 0  1  0  1  0  1  0  0</definition>
+    <speed>72.4649024</speed>
+  </Table>
+  <Table>
+    <name>2NMLS6</name>
+    <definition>Compound 0  0  0  1 -1  2  1  0</definition>
+    <speed>85.3920422</speed>
+  </Table>
+  <Table>
+    <name>MSL6</name>
+    <definition>Compound 0  0  0  1  1  0  1  0</definition>
+    <speed>88.5125831</speed>
+  </Table>
+  <Table>
+    <name>2ML6</name>
+    <definition>Compound 0  0  0  2  0  0  1  0</definition>
+    <speed>87.4966873</speed>
+  </Table>
+  <Table>
+    <name>2MNLS6</name>
+    <definition>Compound 0  0  0  2 -1  1  1  0</definition>
+    <speed>85.9364169</speed>
+  </Table>
+  <Table>
+    <name>3MLS6</name>
+    <definition>Compound 0  0  0  3 -1  0  1  0</definition>
+    <speed>86.4807916</speed>
+  </Table>
+  <Table>
+    <name>2MNO7</name>
+    <definition>Compound 1  0  0  2  0  1  0  0</definition>
+    <speed>100.3509735</speed>
+  </Table>
+  <Table>
+    <name>2NMK7</name>
+    <definition>Compound 0  1  0  1  0  2  0  0</definition>
+    <speed>100.9046319</speed>
+  </Table>
+  <Table>
+    <name>2MSO7</name>
+    <definition>Compound 1  0  0  2  1  0  0  0</definition>
+    <speed>101.911244</speed>
+  </Table>
+  <Table>
+    <name>MSKO7</name>
+    <definition>Compound 1  0  0  1  1  0  0  1</definition>
+    <speed>103.0092771</speed>
+  </Table>
+  <Table>
+    <name>2MSN8</name>
+    <definition>Compound 0  0  0  2  1  1  0  0</definition>
+    <speed>116.4079379</speed>
+  </Table>
+  <Table>
+    <name>2(MS)8</name>
+    <definition>Compound 0  0  0  2  2  0  0  0</definition>
+    <speed>117.9682084</speed>
+  </Table>
+  <Table>
+    <name>2(MN)8</name>
+    <definition>Compound 0  0  0  2  0  2  0  0</definition>
+    <speed>114.8476675</speed>
+  </Table>
+  <Table>
+    <name>2MSL8</name>
+    <definition>Compound 0  0  0  2  1  0  1  0</definition>
+    <speed>117.4966873</speed>
+  </Table>
+  <Table>
+    <name>4MLS8</name>
+    <definition>Compound 0  0  0  4 -1  0  1  0</definition>
+    <speed>115.4648958</speed>
+  </Table>
+  <Table>
+    <name>3ML8</name>
+    <definition>Compound 0  0  0  3  0  0  1  0</definition>
+    <speed>116.4807916</speed>
+  </Table>
+  <Table>
+    <name>3MK8</name>
+    <definition>Compound 0  0  0  3  0  0  0  1</definition>
+    <speed>117.0344499</speed>
+  </Table>
+  <Table>
+    <name>2MSK8</name>
+    <definition>Compound 0  0  0  2  1  0  0  1</definition>
+    <speed>118.0503457</speed>
+  </Table>
+  <Table>
+    <name>2M2NK9</name>
+    <definition>Compound 0  1  0  2  0  2  0  0</definition>
+    <speed>129.8887361</speed>
+  </Table>
+  <Table>
+    <name>3MNK9</name>
+    <definition>Compound 0  1  0  3  0  1  0  0</definition>
+    <speed>130.4331108</speed>
+  </Table>
+  <Table>
+    <name>4MK9</name>
+    <definition>Compound 0  1  0  4  0  0  0  0</definition>
+    <speed>130.9774855</speed>
+  </Table>
+  <Table>
+    <name>3MSK9</name>
+    <definition>Compound 0  1  0  3  1  0  0  0</definition>
+    <speed>131.9933813</speed>
+  </Table>
+  <Table>
+    <name>4MN10</name>
+    <definition>Compound 0  0  0  4  0  1  0  0</definition>
+    <speed>144.3761464</speed>
+  </Table>
+  <Table>
+    <name>3MNS10</name>
+    <definition>Compound 0  0  0  3  1  1  0  0</definition>
+    <speed>145.3920422</speed>
+  </Table>
+  <Table>
+    <name>4MS10</name>
+    <definition>Compound 0  0  0  4  1  0  0  0</definition>
+    <speed>145.9364169</speed>
+  </Table>
+  <Table>
+    <name>3MSL10</name>
+    <definition>Compound 0  0  0  3  1  0  1  0</definition>
+    <speed>146.4807916</speed>
+  </Table>
+  <Table>
+    <name>3M2S10</name>
+    <definition>Compound 0  0  0  3  2  0  0  0</definition>
+    <speed>146.9523126</speed>
+  </Table>
+  <Table>
+    <name>4MSK11</name>
+    <definition>Compound 0  1  0  4  1  0  0  0</definition>
+    <speed>160.9774855</speed>
+  </Table>
+  <Table>
+    <name>4MNS12</name>
+    <definition>Compound 0  0  0  4  1  1  0  0</definition>
+    <speed>174.3761464</speed>
+  </Table>
+  <Table>
+    <name>5MS12</name>
+    <definition>Compound 0  0  0  5  1  0  0  0</definition>
+    <speed>174.9205211</speed>
+  </Table>
+  <Table>
+    <name>4MSL12</name>
+    <definition>Compound 0  0  0  4  1  0  1  0</definition>
+    <speed>175.4648958</speed>
+  </Table>
+  <Table>
+    <name>4M2S12</name>
+    <definition>Compound 0  0  0  4  2  0  0  0</definition>
+    <speed>175.9364169</speed>
+  </Table>
+  <Table>
+    <name>M1C</name>
+    <definition>Basic 1 -1 1 0 0 0   1 -1 0 0 0 0   144</definition>
+    <speed>14.4920521</speed>
+  </Table>
+  <Table>
+    <name>3MKS2</name>
+    <definition>Compound 0 0 0 3 -1 0 0 -1</definition>
+    <speed>26.8701754</speed>
+  </Table>
+  <Table>
+    <name>OQ2-HORN</name>
+    <definition>Compound 1 0 0 0 0 0 0 0 1</definition>
+    <speed>27.3416965</speed>
+  </Table>
+  <Table>
+    <name>MSK2</name>
+    <definition>Compound 0 0 0 1 1 0 0 -1</definition>
+    <speed>28.9019669</speed>
+  </Table>
+  <Table>
+    <name>MSP2</name>
+    <definition>Compound 0 0 -1 1 0 0 0 0 0 0 1</definition>
+    <speed>29.0251729</speed>
+  </Table>
+  <Table>
+    <name>2MP3</name>
+    <definition>Compound 0 0 -1 2 0 0 0 0</definition>
+    <speed>43.0092771</speed>
+  </Table>
+  <Table>
+    <name>4MS4</name>
+    <definition>Compound 0 0 0 4 -2 0 0 0</definition>
+    <speed>55.9364169</speed>
+  </Table>
+  <Table>
+    <name>2MNS4</name>
+    <definition>Compound 0 0 0 2 -1 1 0 0</definition>
+    <speed>56.4079379</speed>
+  </Table>
+  <Table>
+    <name>2MSK4</name>
+    <definition>Compound 0 0 0 2 1 0 0 -1</definition>
+    <speed>57.8860711</speed>
+  </Table>
+  <Table>
+    <name>3MN4</name>
+    <definition>Compound 0 0 0 3 0 -1 0 0</definition>
+    <speed>58.5125831</speed>
+  </Table>
+  <Table>
+    <name>2MSN4</name>
+    <definition>Compound 0 0 0 2 1 -1 0 0</definition>
+    <speed>59.5284789</speed>
+  </Table>
+  <Table>
+    <name>3MK5</name>
+    <definition>Compound 0 -1 0 3 0 0 0 0</definition>
+    <speed>71.911244</speed>
+  </Table>
+  <Table>
+    <name>3MO5</name>
+    <definition>Compound -1 0 0 3 0 0 0 0</definition>
+    <speed>73.0092771</speed>
+  </Table>
+  <Table>
+    <name>3MNS6</name>
+    <definition>Compound 0 0 0 3 -1 1 0 0</definition>
+    <speed>85.3920422</speed>
+  </Table>
+  <Table>
+    <name>4MS6</name>
+    <definition>Compound 0 0 0 4 -1 0 0 0</definition>
+    <speed>85.9364169</speed>
+  </Table>
+  <Table>
+    <name>2MNU6</name>
+    <definition>Compound 0 0 0 2 0 0 0 0 0 1</definition>
+    <speed>86.4807916</speed>
+  </Table>
+  <Table>
+    <name>3MSK6</name>
+    <definition>Compound 0 0 0 3 1 0 0 -1</definition>
+    <speed>86.8701754</speed>
+  </Table>
+  <Table>
+    <name>MKNU6</name>
+    <definition>Compound 0 0 0 1 0 0 0 1 0 1</definition>
+    <speed>87.5788246</speed>
+  </Table>
+  <Table>
+    <name>3MSN6</name>
+    <definition>Compound 0 0 0 3 1 -1 0 0</definition>
+    <speed>88.5125831</speed>
+  </Table>
+  <Table>
+    <name>M7</name>
+    <definition>Compound 0 0 0 3 0 0 0 0 0 0 0 1</definition>
+    <speed>101.4490066</speed>
+  </Table>
+  <Table>
+    <name>2MNK8</name>
+    <definition>Compound 0 0 0 2 0 1 0 1</definition>
+    <speed>116.4900752</speed>
+  </Table>
+  <Table>
+    <name>2(MS)N10</name>
+    <definition>Compound 0 0 0 2 2 1 0 0</definition>
+    <speed>146.4079379</speed>
+  </Table>
+  <Table>
+    <name>MNUS2</name>
+    <definition>Compound 0 0 0 1 -1 0 0 0 0 1</definition>
+    <speed>27.4966873</speed>
+  </Table>
+  <Table>
+    <name>2MK2</name>
+    <definition>Compound 0 0 0 2 0 0 0 -1</definition>
+    <speed>27.8860711</speed>
+  </Table>
+</NewDataSet>

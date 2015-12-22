@@ -35,3 +35,20 @@ type TideMonkeyLibTests() =
         let prediction = fromUnixTimestamp 1445121500.0 |> kkPredictor 
         Assert.AreEqual(Falling, prediction.Direction)
         Assert.AreEqual((float) 0.6523, (float) prediction.Magnitude, 0.0001)
+
+    [<Test>]
+    member test.CanRunStationAddSunMoonEvents() = 
+        let s = Station.Named("Kailua Kona") <| (Station.LoadStations("Any") |> Option.get)
+
+        match s with 
+        | Some st -> 
+            let start = new DateTime(2016, 01, 06)
+            let endTime = new DateTime(2016, 01, 07)
+            let teo = st.AddSunMoonEvents start endTime
+            Assert.AreEqual(59., float teo.Sunrises.Head.Minute, 2.0)
+            Assert.AreEqual(59., float teo.Sunsets.Head.Minute, 2.0)
+            Assert.AreEqual(57., float teo.Moonrises.Head.Minute, 2.0)
+            Assert.AreEqual(44., float teo.Moonsets.Head.Minute, 2.0)
+            Assert.AreEqual(SkyCal.NewMoon, snd teo.MoonPhases.Head)
+
+        | None -> Assert.Fail()
