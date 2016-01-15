@@ -24,7 +24,10 @@ type HarmonicsFileTests () =
         Assert.AreEqual(3084, subordinates |> List.ofSeq |> List.length)
 
 
-
+    [<Test>]
+    member x.CanReadRefsFile () = 
+        let refs = Harmonics.Refs
+        Assert.AreEqual(865, refs |> List.ofSeq |> List.length)
 
     [<Test>]
     member x.CanParseADataSetElement() = 
@@ -135,3 +138,4 @@ Datum from benchmark sheet, publication date 2003-04-21
             let d = Harmonics.DataSetFromTableElement xml
             Assert.IsNotNull(d)
             )
+

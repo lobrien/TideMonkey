@@ -3,29 +3,142 @@
 open System
 open SkyCal
 
-type StationT = { Name : string ; Coordinates : CoordinatesT}
+type PredictionValueT = { Amplitude : AmplitudeT }
 
-type PredictionT<[<Measure>] 'u> = { Magnitude : float<'u> ; Direction : DirectionT ; Units : PredictionUnitsT}
+type PredictionT = { Magnitude : float ; Direction : DirectionT ; Units : PredictionUnitsT}
 
-type SimpleOffsetsT<[<Measure>] 'u> = { TimeAdd : IntervalT; LevelAdd : PredictionT<'u>; LevelMultiply : float }
+type SimpleOffsetsT = { TimeAdd : IntervalT; LevelAdd : PredictionValueT; LevelMultiply : float }
 
-type ConstituentSetT<[<Measure>] 'speedT, [<Measure>] 'amplitudeT, [<Measure>] 'predictionUnitsT> = { Constituents : ConstituentT<'speedT, 'amplitudeT> List; Datum : PredictionT<'predictionUnitsT>; Adjustments : SimpleOffsetsT<'predictionUnitsT> List }
+type ConstituentSetT<[<Measure>] 'speedT, [<Measure>] 'amplitudeT> = { 
+    Constituents : ConstituentT<'speedT, 'amplitudeT> List; 
+    Datum : PredictionValueT; 
+    Amplitudes : PredictionValueT list;
+    Phases : float<Radians>;
+    MaxAmplitude : AmplitudeT; 
+    MaxDt : AmplitudeT list;
+    CurrentYear : Year;
+    Epoch : DateTime;
+    NextEpoch : DateTime;
+    PreferredLengthUnits : PredictionUnitsT;
+
+    }
 
 type SunMoonEventsT = { Sunrises : DateTime list; Sunsets : DateTime list; Moonrises : DateTime list; Moonsets : DateTime list; MoonPhases : (DateTime * MoonPhaseT) list }
+
+type MetaField = { Name : string; Value : string }
+
+type TideEventType = 
+    | Max
+    | Min
+    | SlackRise
+    | SlackFall
+    | MarkRise
+    | MarkFall
+    | Sunrise
+    | Sunset
+    | Moon of MoonPhaseT
+    | RawReading
+
+type TideEventT = { Date : DateTime ; EventType : TideEventType; PredictionValue : PredictionValueT option } 
+
+
+type StationT<[<Measure>] 'speedT, [<Measure>] 'amplitudeT, [<Measure>] 'predictionUnitsT> = { 
+    Name : string ; 
+    Coordinates : CoordinatesT; 
+    Timezone : string; 
+    MinCurrentBearing : CurrentBearingT option; //aka ebb direction
+    MaxCurrentBearing : CurrentBearingT option; //aka flood direction
+    Note : string option;
+    IsCurrent : bool;
+    Step : IntervalT option;
+    //Protected
+    StationRef : StationT<'speedT, 'amplitudeT, 'predictionUnitsT> option; //TODO: Maybe kill this -- it's a * to StationRef from station
+    ConstituentSet : ConstituentSetT<'speedT, 'amplitudeT>; 
+    Metadata : MetaField list option; //TODO: Maybe kill this -- it's the string data before conversion
+    MinimumTimeOffset : IntervalT;
+    MaximumTimeOffset : IntervalT;
+}
+
 
 module Station = 
 
     let LoadStations (pathToHarmonicsFile : string) = 
        //TODO: Actually do this 
-       Some [  { Name = "Kailua Kona"; Coordinates = { Latitude = 19.65<Degrees>; Longitude = 155.9942<Degrees> } };  
+       (* Some [  { Name = "Kailua Kona"; Coordinates = { Latitude = 19.65<Degrees>; Longitude = 155.9942<Degrees> } };  
                { Name = "Anchorage" ; Coordinates = { Latitude = 61.2167<Degrees>; Longitude = 149.9000<Degrees> } };  
                { Name = "Monterey" ; Coordinates = { Latitude = 36.6000<Degrees>; Longitude = 121.9000<Degrees> } }
+            ]
+        *)
+        let konaMockConstituentSet = 
+            let konaMockConstituents = 
+                [
+                    { 
+                        Name = "?"
+                        Speed = 0.00007556036137996953<RadiansPerSecond> ;
+                        Amplitude = { Value = 0.035999998450279236; Units = Feet };
+                        Phase = -4.2812927084053118<Radians>
+                        FirstValidYear = 2015
+                        LastValidYear = 2019
+                        Args = 
+                            [
+                            (2015, 1.4552554823759725<Radians>);
+                            (2016, 2.9045769092110301<Radians>);
+                            (2017, 4.6134285774384356<Radians>);
+                            (2018, 6.1042890588501679<Radians>);
+                            (2019, 1.3425072286761053<Radians>);
+                            ]
+                        Nodes = 
+                            [
+                                (2015, 0.82779997587203979);
+                                (2016, 0.83429998159408569);
+                                (2017, 0.86690002679824829);
+                                (2018, 0.91759997606277466);
+                                (2019, 0.97610002756118774);
+                            ]
+                    }
+                ]
+
+            let datum = { Amplitude = {Value = 1.1449999809265137; Units = Feet } }
+
+            let offsets = { 
+                TimeAdd = { Duration = 2220.<Seconds> };
+                LevelAdd = { Amplitude = { Value = 0.0;  Units = Feet } };
+                LevelMultiply = 0.67
+                }
+            //TODO: I don't think this is even close to finished
+            (*
+            *)
+
+            {
+                Constituents = konaMockConstituents;
+                Datum = datum;
+                Adjustments = offsets; //TODO: Kona actually has hairy offsets
+            }
+
+        Some [
+            {
+                Name = "Kailua Kona, Hawaii Island, Hawaii";
+                Coordinates = { Latitude = 19.6433<Degrees>; Longitude = -156.0<Degrees> };
+                Timezone = ":Pacific/Honolulu";
+                MinCurrentBearing = Some { Degrees = 262.0<Degrees>; IsDegreesTrue = true } ;
+                MaxCurrentBearing = Some { Degrees = 82.0<Degrees>; IsDegreesTrue = true };
+                Note = None;
+                IsCurrent = false; //Because units = 'feet'
+                Step = Some { Duration = 3600.0<Seconds> } ;
+                StationRef = None; //Should be Some to index 43373 -> Hilo
+                ConstituentSet = konaMockConstituentSet; //TODO there are actually 23 constituents for Kona
+                Metadata = None;
+                MinimumTimeOffset = { Duration = 2220.0<Seconds> };
+                MaximumTimeOffset = { Duration = 2280.0<Seconds> };
+
+            };
             ]
 
     let Named name stations = 
         stations |> List.tryFind (fun s -> s.Name = name)
 
-    type StationT with
+  
+    type StationT<[<Measure>] 'speedT, [<Measure>] 'amplitudeT, [<Measure>] 'predictionUnitsT> with
         member this.AddSunMoonEvents (startTime : DateTime) (endTime : DateTime)  = 
             //Should return sunrise, sunsets, and next moon phase that is within range, so
             let rec dates (t : DateTime) = seq { 
@@ -67,4 +180,74 @@ module Station =
 
 
         member this.Predict time = 
-            { Magnitude = 0.0<Feet> ; Direction = Rising ; Units = Feet }
+            { Magnitude = 0.0; Direction = Rising ; Units = Feet }
+
+        
+        
+
+module ConstituentSet = 
+
+    let Create (constituents : ConstituentT<'u,'v> list) datum adjustments =
+        let currentYear = 2016
+        let preferredLengthUnits = datum.Units
+        Assert.IsTrue(fun () -> datum.Units = adjustments.LevelAdd.Amplitude.Units)
+        let adjustedDatum = 
+            {
+                Direction = datum.Direction;
+                Magnitude = datum.Magnitude * adjustments.LevelMultiply + adjustments.LevelAdd.Amplitude.Value;
+                Units = datum.Units;
+            }
+        let adjConstituents = 
+            constituents
+            |> Seq.map (fun constituent ->
+                    { 
+                        Name = constituent.Name;
+                        Speed = constituent.Speed;
+                        FirstValidYear = constituent.FirstValidYear;
+                        LastValidYear = constituent.LastValidYear;
+                        Args = constituent.Args;
+                        Nodes = constituent.Nodes;
+
+                        Amplitude = 
+                            { 
+                            Value = constituent.Amplitude.Value * adjustments.LevelMultiply;
+                            Units = constituent.Amplitude.Units
+                            }
+                        //To move tides one hour later, you need to turn BACK the phases
+                        Phase = constituent.Phase - adjustments.TimeAdd.Duration * constituent.Speed;
+
+                    })
+        //Nasty loop to figure maxdt and maxAmplitude
+
+        let (maxdt, maxamplitude) =
+            [0 .. maxDeriv ] 
+        ignore()
+
+
+    (* 
+
+        From XTide: tideDerivative (Interval sinceEpoch, unsigned deriv)
+     *
+     * Calculate (deriv)th time derivative of the normalized tide for time
+     * in s since the beginning (UTC) of currentYear, WITHOUT changing
+     * years or blending.
+     *
+     * Note:  This function does not check for changes in year.  This is
+     * important to our algorithm, since for times near new year's, we
+     * interpolate between the tides calculated using one year's
+     * coefficients and the next year's coefficients.
+    *)
+    type ConstituentSetT<'speedT,'amplitudeT> with
+        member this.TideDerivative (sinceEpoch : IntervalT) (deriv : float)  = 
+            (*
+            let tempd = deriv * Math.PI / 2.0 * 1.0<Radians>
+            let term (constituent : ConstituentT<Radians, _>) = 
+                let inner = tempd * constituent.Speed * sinceEpoch.Duration + constituent.Phase
+                constituent.Amplitude * cos(inner)
+
+            terms |> List.sum |> PredictionValue
+            *)
+            raise (new NotImplementedException())
+
+   
+         

@@ -37,9 +37,8 @@ type HMS = { Hours : int; Minutes : int; Seconds : float }
 type Year = int
 
 
-
 (*
-TODO: Convert these into composite units of measure with angles / timeT 
+TODO: Convert these into composite units of measure with angles / timeT  
 e.g., DegreesPerHour = <Degrees>/<Hour> but is also a measure of angular velocity 
 *)
 [<Measure>] type DegreesPerHour 
@@ -49,14 +48,16 @@ e.g., DegreesPerHour = <Degrees>/<Hour> but is also a measure of angular velocit
 type SpeedT<[<Measure>] 'u> = float<'u>
 
 //TODO: Figure out a way to validate / replace / runtime-test the match of Value with the Units
-type AmplitudeT<[<Measure>] 'u> = { Value : float<'u>; Units : PredictionUnitsT }
+type AmplitudeT = { Value : float; Units : PredictionUnitsT }
 
 
-type ConstituentT<[<Measure>] 'speedT, [<Measure>] 'amplitudeT> = { Speed : SpeedT<'speedT>; FirstValidYear : Year; LastValidYear : Year; Amplitude : AmplitudeT<'amplitudeT>; Phase : float<Radians> ; Args: Map<Year, float<Degrees>>; Nodes : Map<Year,float>}
+type ConstituentT<[<Measure>] 'speedT, [<Measure>] 'amplitudeT> = { Name : string; Speed : SpeedT<'speedT>; FirstValidYear : Year; LastValidYear : Year; Amplitude : AmplitudeT; Phase : float<Radians> ; Args: (Year * float<Radians>) list; Nodes : (Year * float) list}
 
 type IntervalT = { Duration : float<Seconds> }
 
 type CoordinatesT = { Latitude : float<Degrees>; Longitude : float<Degrees> }
+
+type CurrentBearingT = { Degrees : float<Degrees>; IsDegreesTrue : bool }
 
 module Assert = 
     let IsTrue (fn : unit -> bool) = 
@@ -127,13 +128,16 @@ module Geometry =
 
     let dms2hms (dms : DMS) = dms2deg dms |> deg2hms 
 
+    let dph2rps (dph : float<DegreesPerHour>) = (dph / 360.0 * Math.PI * 2.0 / 3600.0) * 1.0<RadiansPerSecond>/1.0<DegreesPerHour>
+            
+
 module Speed = 
     let Convert (degreesPerHour : float<DegreesPerHour>) : float<RadiansPerSecond> = (degreesPerHour * Math.PI / 648000.0) * 1.0<RadiansPerSecond/DegreesPerHour>
 
 module Constituent =    
     open Geometry
    
-    let CreateFromUntypedInputs speedDegreesPerSecond startYear numberOfYears argsDegrees nodes amplitude phaseDegrees = 
+    let CreateFromUntypedInputs name speedDegreesPerSecond startYear numberOfYears argsDegrees (nodes : float list) amplitude phaseDegrees = 
         let typedSpeed = speedDegreesPerSecond * 1.0<DegreesPerHour>
         let speed = Speed.Convert(typedSpeed)
         let lastValidYear = startYear + numberOfYears - 1
@@ -143,12 +147,13 @@ module Constituent =
 
         Assert.IsTrue(fun () -> numberOfYears = (argsDegrees |> List.ofSeq |> List.length) )
         let years : Year seq = seq { for yr in startYear .. (startYear + numberOfYears) -> yr } 
-        let args = Seq.zip years (argsDegrees |> Seq.map (fun d -> d * 1.0<Degrees> )) |> Map.ofSeq
+        let ra = argsDegrees |> Seq.map Geometry.deg2rad
+        let args = Seq.zip years ra |> List.ofSeq
 
         Assert.IsTrue(fun () -> numberOfYears = (nodes |> List.ofSeq |> List.length) )
-        let nodes = Seq.zip years nodes |> Map.ofSeq
+        let nodes = Seq.zip years nodes |> List.ofSeq
 
-        { Speed = speed; FirstValidYear = startYear ; LastValidYear = lastValidYear; Amplitude = amplitude; Phase = phaseRadians ; Args = args; Nodes = nodes; }
+        { Name = name; Speed = speed; FirstValidYear = startYear ; LastValidYear = lastValidYear; Amplitude = amplitude; Phase = phaseRadians ; Args = args; Nodes = nodes; }
 
     let ValidateYear constituent year =
         Assert.IsTrue ( fun() -> constituent.FirstValidYear >= year && constituent.LastValidYear >= year)
@@ -156,7 +161,7 @@ module Constituent =
     [<Obsolete("Use EquilibriumArgument")>]
     let arg constituent year = 
         ValidateYear constituent year
-        constituent.Args |> Map.find year
+        constituent.Args |> List.find (fun t -> fst(t) = year)
 
         
     let EquilibriumArgument constituent year = arg constituent year
@@ -164,12 +169,11 @@ module Constituent =
     [<Obsolete("Use NodeFactor")>]
     let nod constituent year = 
         ValidateYear constituent year
-        constituent.Nodes |> Map.find year
+        constituent.Nodes |> List.find (fun t -> fst(t) = year)
 
     let NodeFactor constituent year = 
         nod constituent year
 
-    //TODO: Use member ConstituentT with member to add methods directly to type. I mean, come on. What are we, farmers?
 
 module Interval = 
    //TODO: Figure out how to type-check / convert units of measure from speed to match interval

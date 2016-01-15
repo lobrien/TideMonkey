@@ -43,9 +43,8 @@
     <Compile Include="AssemblyInfo.fs" />
     <Compile Include="Infrastructure.fs" />
     <Compile Include="SkyCal.fs" />
-    <Compile Include="Harmonics.fs" />
-    <Compile Include="HarmonicsFileParser.fs" />
     <Compile Include="TideLib.fs" />
+    <Compile Include="Harmonics.fs" />
   </ItemGroup>
   <Import Project="$(MSBuildExtensionsPath32)\..\Microsoft SDKs\F#\3.1\Framework\v4.0\Microsoft.FSharp.Targets" />
   <ItemGroup>
@@ -80,6 +79,12 @@
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
     <None Include="Resources\Harmonics\refs2014.xml">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="Resources\Harmonics\equilibria.xml">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="Resources\Harmonics\node_factors.xml">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
   </ItemGroup>

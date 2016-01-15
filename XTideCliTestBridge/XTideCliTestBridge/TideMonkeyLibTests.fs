@@ -22,7 +22,7 @@ type TideMonkeyLibTests() =
     [<Test>]
     member x.CanFindKona() = 
         let ss = Station.LoadStations("pathToHarmonics") 
-        let s = ss.Value |> Station.Named "Kailua Kona" 
+        let s = ss.Value |> Station.Named "Kailua Kona, Hawaii Island, Hawaii" 
         match s with 
         | None -> Assert.Fail("Could not locate Kona");
         | Some _ -> ignore() //pass

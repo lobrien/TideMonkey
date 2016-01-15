@@ -16,20 +16,17 @@
     <DefineConstants>DEBUG</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <ConsolePause>false</ConsolePause>
-    <PlatformTarget>
-    </PlatformTarget>
+    <PlatformTarget></PlatformTarget>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <DebugSymbols>false</DebugSymbols>
     <Optimize>true</Optimize>
     <OutputPath>bin\Release</OutputPath>
-    <DefineConstants>
-    </DefineConstants>
+    <DefineConstants></DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <ConsolePause>false</ConsolePause>
     <GenerateTailCalls>true</GenerateTailCalls>
-    <PlatformTarget>
-    </PlatformTarget>
+    <PlatformTarget></PlatformTarget>
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="mscorlib" />
@@ -43,11 +40,10 @@
   <ItemGroup>
     <Compile Include="CLISmokeTest.fs" />
     <Compile Include="AspirationalTests.fs" />
-    <Compile Include="TideMonkeyLibTests.fs" />
     <Compile Include="TideMonkeyInfrastructureTests.fs" />
     <Compile Include="SkyCalTests.fs" />
-    <Compile Include="HarmonicsFileParserTests.fs" />
     <Compile Include="HarmonicsFileTest.fs" />
+    <Compile Include="TideMonkeyLibTests.fs" />
     <Compile Include="WorkingOnTests.fs" />
   </ItemGroup>
   <Import Project="$(MSBuildExtensionsPath32)\..\Microsoft SDKs\F#\3.1\Framework\v4.0\Microsoft.FSharp.Targets" />

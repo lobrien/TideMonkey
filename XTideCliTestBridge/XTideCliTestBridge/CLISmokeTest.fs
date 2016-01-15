@@ -8,7 +8,7 @@ type XTideResult = { time : DateTime; magnitude : float; unitOfMeasure : string;
 [<TestFixture>]
 type CLISmokeTest() = 
 
-    let path = "/Users/larryobrien/Library/Developer/Xcode/DerivedData/xtide_cli-gfowdducaqoomhbjcnbkzfflkfpq/Build/Products/Debug/xtide_cli"
+    let path = "/Users/larryobrien/Documents/src/xamarin_mine/TideMonkey/xtide_cli"
     let harmonicsPath = "/Users/larryobrien/Documents/src/3rd party/MX-Tides-iOS/resources/harmonics-dwf-20121224-free.tcd" 
 
     let cli exe cmd = 
