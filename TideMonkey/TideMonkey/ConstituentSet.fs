@@ -2,8 +2,8 @@
 
 open System
 
-type ConstituentSetT<[<Measure>] 'amplitudeT> = { 
-    Constituents : ConstituentT<'amplitudeT> List; 
+type ConstituentSetT = { 
+    Constituents : ConstituentT List; 
     Datum : PredictionValueT; 
     Amplitudes : PredictionValueT list;
     Phases : float<Radians>;
@@ -19,7 +19,7 @@ type ConstituentSetT<[<Measure>] 'amplitudeT> = {
 module ConstituentSet = 
     let MAX_DT = 2 //Maximum derivative supported by tideDerivative and related functions
 
-    let Create (constituents : ConstituentT<'v> list) (datum : PredictionValueT) adjustments =
+    let Create (constituents : ConstituentT list) (datum : PredictionValueT) adjustments =
         let currentYear = 2016
         let preferredLengthUnits = datum.Amplitude.Units
         Assert.IsTrue(fun () -> datum.Amplitude.Units = adjustments.LevelAdd.Amplitude.Units)
@@ -102,7 +102,7 @@ module ConstituentSet =
      * interpolate between the tides calculated using one year's
      * coefficients and the next year's coefficients.
     *)
-    type ConstituentSetT<'amplitudeT> with
+    type ConstituentSetT with
         member this.TideDerivative (sinceEpoch : IntervalT) (deriv : float)  = 
             (*
             let tempd = deriv * Math.PI / 2.0 * 1.0<Radians>

@@ -7,7 +7,7 @@ type MetaField = { Name : string; Value : string }
 
 type CurrentBearingT = { Degrees : float<Degrees>; IsDegreesTrue : bool }
 
-type StationT<[<Measure>] 'amplitudeT, [<Measure>] 'predictionUnitsT> = { 
+type StationT = { 
     Name : string ; 
     Coordinates : CoordinatesT; 
     Timezone : string; 
@@ -17,8 +17,8 @@ type StationT<[<Measure>] 'amplitudeT, [<Measure>] 'predictionUnitsT> = {
     IsCurrent : bool;
     Step : IntervalT option;
     //Protected
-    StationRef : StationT<'amplitudeT, 'predictionUnitsT> option; //TODO: Maybe kill this -- it's a * to StationRef from station
-    ConstituentSet : ConstituentSetT<'amplitudeT>; 
+    StationRef : StationT option; //TODO: Maybe kill this -- it's a * to StationRef from station
+    ConstituentSet : ConstituentSetT; 
     Metadata : MetaField list option; //TODO: Maybe kill this -- it's the string data before conversion
     MinimumTimeOffset : IntervalT;
     MaximumTimeOffset : IntervalT;
@@ -105,11 +105,11 @@ module Station =
             };
             ]
 
-    let Named name (stations : StationT<_,_> list) = 
+    let Named name (stations : StationT list) = 
         stations |> List.tryFind (fun s -> s.Name = name)
 
   
-    type StationT<[<Measure>] 'amplitudeT, [<Measure>] 'predictionUnitsT> with
+    type StationT with
         member this.AddSunMoonEvents (startTime : DateTime) (endTime : DateTime)  = 
             //Should return sunrise, sunsets, and next moon phase that is within range, so
             let rec dates (t : DateTime) = seq { 

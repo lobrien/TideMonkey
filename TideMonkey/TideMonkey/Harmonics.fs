@@ -291,11 +291,8 @@ module Harmonics =
         }
 
 
-    let GetConstituents<[<Measure>] 'unitsT, [<Measure>] 'adjustmentsT> (station : StationT<'unitsT, 'unitsT>) (adjustments : SimpleOffsetsT) (db : DbHeaderT) = 
+    let GetConstituents (station : StationT) (adjustments : SimpleOffsetsT) (db : DbHeaderT) = 
         Assert.IsTrue(fun () -> station.StationRef.IsNone)
-
-
-
 
     let StationFrom (dbh : DbHeaderT) (ds : DataSetT) (constants : ConstantsT seq) (constituentsData : ConstituentsDataT seq) (simpleOffset : SimpleOffsetsT) = 
         let name = ds.Name

@@ -2,7 +2,7 @@
 
 open System
 
-type ConstituentT<[<Measure>] 'amplitudeT> = { Name : string; Speed : SpeedT; FirstValidYear : Year; LastValidYear : Year; Amplitude : AmplitudeT; Phase : float<Radians> ; Args: (Year * float<Radians>) list; Nodes : Map<Year, float>}
+type ConstituentT = { Name : string; Speed : SpeedT; FirstValidYear : Year; LastValidYear : Year; Amplitude : AmplitudeT; Phase : float<Radians> ; Args: (Year * float<Radians>) list; Nodes : Map<Year, float>}
 
 module Constituent =    
     open Geometry

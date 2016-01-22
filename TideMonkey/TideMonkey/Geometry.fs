@@ -18,7 +18,6 @@ module Geometry =
     let degreesPerArcSecond = 1.0<Degrees>/3600.0<ArcSeconds>
     let arcSecondsPerDegree = 3600.0<ArcSeconds>/1.0<Degrees>
    
-
     let normalize (degs : float<Degrees>) = degs % 360.0<Degrees>
     let normalizePositive (degs : float<Degrees>) = 
         let unitCircle = normalize degs
@@ -27,7 +26,6 @@ module Geometry =
             | true -> unitCircle + 360.0<Degrees>
             | false -> unitCircle
         degs
-
 
     let normalizeRadians (rads : float<Radians>) = rads % (Math.PI * 2.<Radians>)
     let normalizeRadiansPositive (rads : float<Radians>) = 
