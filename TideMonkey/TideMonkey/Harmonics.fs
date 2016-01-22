@@ -9,7 +9,7 @@ type ConstantsT = { Index : int; Name : string; Phase : float<Degrees>; Amp : fl
 
 type AliasT = { Format : string; Alias : string; Name : string }
 
-type ConstituentsDataT = { Name : string; Definition : string; Speed : float<DegreesPerHour> }
+type ConstituentsDataT = { Name : string; Definition : string; Speed : float<Degrees/Hours> }
 
 type DataSetT = { 
     Index : int; 
@@ -107,7 +107,7 @@ module Harmonics =
             {
                 Name = el.Element(xn "name").Value;
                 Definition = el.Element(xn "definition").Value;
-                Speed = el.Element(xn "speed").Value |> float |> fun f -> f * 1.0<DegreesPerHour>;
+                Speed = el.Element(xn "speed").Value |> float |> fun f -> f * 1.0<Degrees/Hours>;
             } |> Some
         with 
         | x -> Assert.LogException x; None
@@ -276,7 +276,7 @@ module Harmonics =
 
     *)
 
-    let Constituent name (speed : float<RadiansPerSecond>) startYear numberOfYears (equilibria : (Year * float<Degrees>) list) (node_factors : Map<Year,float>) amplitude (phase : float<Degrees>) = 
+    let Constituent name (speed : float<Radians/Seconds>) startYear numberOfYears (equilibria : (Year * float<Degrees>) list) (node_factors : Map<Year,float>) amplitude (phase : float<Degrees>) = 
         let args = equilibria |> List.map (fun (y, d) -> (y, Geometry.deg2rad d))
 
         { 
@@ -331,7 +331,7 @@ module Harmonics =
 
         let ConstituentBuilder (cd : ConstituentsDataT) constant args_degrees node_factors = 
             let name = cd.Name
-            let speed = Speed.dph2rps cd.Speed
+            let speed = Speed.Convert cd.Speed
             let startYear = dbh.StartYear
             let numberOfYears = dbh.NumberOfYears
             let amplitude = { Value = constant.Amp; Units = ds.Units }

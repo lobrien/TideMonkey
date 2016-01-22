@@ -38,7 +38,7 @@ module Station =
                 [
                     { 
                         Name = "?"
-                        Speed = 0.00007556036137996953<RadiansPerSecond> ;
+                        Speed = 0.00007556036137996953<Radians/Seconds> ;
                         Amplitude = { Value = 0.035999998450279236; Units = Feet };
                         Phase = -4.2812927084053118<Radians>
                         FirstValidYear = 2015
