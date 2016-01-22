@@ -10,6 +10,8 @@ type MoonPhaseT =
     | FullMoon
     | LastQuarter
 
+type SunMoonEventsT = { Sunrises : DateTime list; Sunsets : DateTime list; Moonrises : DateTime list; Moonsets : DateTime list; MoonPhases : (DateTime * MoonPhaseT) list }
+
 // DeltaPhi = Nutation in Longitude, DeltaEpsilon = nutation in obliquity
 type NutationT = { DeltaPsi : float<ArcSeconds>; DeltaEpsilon : float<ArcSeconds> }
 

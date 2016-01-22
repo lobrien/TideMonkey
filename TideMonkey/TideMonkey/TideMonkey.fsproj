@@ -42,9 +42,17 @@
   <ItemGroup>
     <Compile Include="AssemblyInfo.fs" />
     <Compile Include="Infrastructure.fs" />
+    <Compile Include="Geometry.fs" />
+    <Compile Include="Units.fs" />
+    <Compile Include="Constituent.fs" />
+    <Compile Include="Prediction.fs" />
+    <Compile Include="Offsets.fs" />
+    <Compile Include="ConstituentSet.fs" />
     <Compile Include="SkyCal.fs" />
-    <Compile Include="TideLib.fs" />
+    <Compile Include="Station.fs" />
     <Compile Include="Harmonics.fs" />
+    <Compile Include="TideEvent.fs" />
+    <Compile Include="TideLib.fs" />
   </ItemGroup>
   <Import Project="$(MSBuildExtensionsPath32)\..\Microsoft SDKs\F#\3.1\Framework\v4.0\Microsoft.FSharp.Targets" />
   <ItemGroup>

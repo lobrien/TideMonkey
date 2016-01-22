@@ -276,7 +276,7 @@ module Harmonics =
 
     *)
 
-    let Constituent name (speed : float<RadiansPerSecond>) startYear numberOfYears (equilibria : (Year * float<Degrees>) list) (node_factors : (Year * float) list) amplitude (phase : float<Degrees>) = 
+    let Constituent name (speed : float<RadiansPerSecond>) startYear numberOfYears (equilibria : (Year * float<Degrees>) list) (node_factors : Map<Year,float>) amplitude (phase : float<Degrees>) = 
         let args = equilibria |> List.map (fun (y, d) -> (y, Geometry.deg2rad d))
 
         { 
@@ -291,11 +291,8 @@ module Harmonics =
         }
 
 
-    let GetConstituents<[<Measure>] 'unitsT, [<Measure>] 'adjustmentsT> (station : StationT<'unitsT, 'unitsT, 'unitsT>) (adjustments : SimpleOffsetsT) (db : DbHeaderT) = 
+    let GetConstituents (station : StationT) (adjustments : SimpleOffsetsT) (db : DbHeaderT) = 
         Assert.IsTrue(fun () -> station.StationRef.IsNone)
-
-
-
 
     let StationFrom (dbh : DbHeaderT) (ds : DataSetT) (constants : ConstantsT seq) (constituentsData : ConstituentsDataT seq) (simpleOffset : SimpleOffsetsT) = 
         let name = ds.Name
@@ -332,10 +329,9 @@ module Harmonics =
             constituentsData
             |> Seq.filter (fun constituent -> constantsRelatingToStation |> Seq.exists (fun constant -> constant.Name = constituent.Name) )
 
-    
         let ConstituentBuilder (cd : ConstituentsDataT) constant args_degrees node_factors = 
             let name = cd.Name
-            let speed = Geometry.dph2rps cd.Speed
+            let speed = Speed.dph2rps cd.Speed
             let startYear = dbh.StartYear
             let numberOfYears = dbh.NumberOfYears
             let amplitude = { Value = constant.Amp; Units = ds.Units }
@@ -356,6 +352,7 @@ module Harmonics =
                 |> Seq.filter(fun (c, _) -> c.IsSome && c.Value.Name = constituent.Name) 
                 |> Seq.map snd
                 |> Seq.map (fun t -> ( t.Year, t.Value))
+                |> Map.ofSeq
             node_factors
 
         let constituents = 
@@ -363,7 +360,7 @@ module Harmonics =
             |> Seq.map (fun cd -> constantsRelatingToStation |> Seq.find (fun constant -> constant.Name = cd.Name) |> fun constant -> (cd, constant)) 
             |> Seq.map (fun (constituentData, constant) -> 
                 let args = ArgsBuilder constituentData |> List.ofSeq
-                let nodes = NodesBuilder constituentData |> List.ofSeq
+                let nodes = NodesBuilder constituentData 
                 ConstituentBuilder constituentData constant args nodes
                 )
             |> List.ofSeq
@@ -385,7 +382,19 @@ module Harmonics =
             LevelMultiply = simpleOffset.LevelMultiply
         }
 
-        let constituentSet = { Constituents = constituents ; Datum = datum; Adjustments = adjustments }
+        //TODO: GARBAGE GARBAGE GARBAGE
+        let constituentSet = { 
+            Constituents = constituents ; 
+            Datum = datum; 
+            Amplitudes = [];
+            Phases = 0.<Radians>;
+            MaxAmplitude = { Value = 0.; Units = Meters }  ;
+            MaxDt = [];
+            CurrentYear = 2016;
+            Epoch = new DateTime(2016,1,1);
+            NextEpoch = new DateTime(2016, 1,1);
+            PreferredLengthUnits = Meters;
+        }
 
         let minimumTimeOffset = { Duration = 0.0<Seconds> } //TODO
         let maximumTimeOffset = { Duration = 0.0<Seconds> } //TODO
