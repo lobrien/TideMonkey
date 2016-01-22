@@ -3,15 +3,17 @@
 open System
 
 type DirectionT = 
-   | Rising 
-   | Falling 
-   with
+   | Rising
+   | Falling
    override this.ToString() = 
-       match this with
-       | Rising -> "Rising"
-       | Falling -> "Falling"
+      match this with
+      | Rising -> "Rising"
+      | Falling -> "Falling"
 
-type PredictionValueT = { Amplitude : AmplitudeT }
+type PredictionValueT = 
+   { Amplitude : AmplitudeT }
 
-type PredictionT = { Magnitude : float ; Direction : DirectionT ; Units : PredictionUnitsT}
-
+type PredictionT = 
+   { Magnitude : float
+     Direction : DirectionT
+     Units : PredictionUnitsT }

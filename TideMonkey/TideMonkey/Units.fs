@@ -2,34 +2,46 @@
 
 open System
 
-[<Measure>] type Meters
-[<Measure>] type Feet
-[<Measure>] type Knots
-[<Measure>] type Zulu
-   
-type PredictionUnitsT = 
-    | Meters
-    | Feet
-    | Knots
-    | KnotsSquared
-    | Zulu
+[<Measure>]
+type Meters
 
-[<Measure>] type Seconds 
-[<Measure>] type Hours
+[<Measure>]
+type Feet
+
+[<Measure>]
+type Knots
+
+[<Measure>]
+type Zulu
+
+type PredictionUnitsT = 
+   | Meters
+   | Feet
+   | Knots
+   | KnotsSquared
+   | Zulu
+
+[<Measure>]
+type Seconds
+
+[<Measure>]
+type Hours
+
 type Year = int
 
-
-
 // Speed:  angular units over time units.
-type SpeedT = float<Radians/Seconds>
+type SpeedT = float<Radians / Seconds>
 
-//TODO: Figure out a way to validate / replace / runtime-test the match of Value with the Units
-type AmplitudeT = { Value : float; Units : PredictionUnitsT }
+type AmplitudeT = 
+   { Value : float
+     Units : PredictionUnitsT }
 
-type IntervalT = { Duration : float<Seconds> }
+type IntervalT = 
+   { Duration : float<Seconds> }
 
 module Speed = 
-    let Convert (degreesPerHour : float<Degrees/Hours>) : float<Radians/Seconds> = degreesPerHour * 1.<Hours>/3600.<Seconds> * (Math.PI * 2.<Radians>)/360.0<Degrees> 
-     
+   let Convert(degreesPerHour : float<Degrees / Hours>) : float<Radians / Seconds> = 
+      degreesPerHour * 1.<Hours> / 3600.<Seconds> * (Math.PI * 2.<Radians>) / 360.0<Degrees>
+
 module Interval = 
    let (*) (interval : IntervalT) (speed : SpeedT) = interval.Duration * speed

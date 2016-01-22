@@ -2,7 +2,3 @@
 
 open System
 open SkyCal
-
-
-      
-

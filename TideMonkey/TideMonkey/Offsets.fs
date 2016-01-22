@@ -2,6 +2,7 @@
 
 open System
 
-type SimpleOffsetsT = { TimeAdd : IntervalT; LevelAdd : PredictionValueT; LevelMultiply : float }
-
-
+type SimpleOffsetsT = 
+   { TimeAdd : IntervalT
+     LevelAdd : PredictionValueT
+     LevelMultiply : float }
