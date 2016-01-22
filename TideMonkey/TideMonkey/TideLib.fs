@@ -112,7 +112,14 @@ module Station =
             {
                 Constituents = konaMockConstituents;
                 Datum = datum;
-                Adjustments = offsets; //TODO: Kona actually has hairy offsets
+                Amplitudes = [ { Amplitude = { Value = 1.0; Units = Feet } } ];
+                Phases = 3.0<Radians>;
+                MaxAmplitude = { Value = 2.0; Units = Feet };
+                MaxDt = [ { Value = 1.0; Units = Feet } ]; 
+                CurrentYear = 2016
+                Epoch = new DateTime(1970, 1, 1); 
+                NextEpoch = new DateTime(2525, 1, 1);
+                PreferredLengthUnits = Feet;
             }
 
         Some [
@@ -186,6 +193,7 @@ module Station =
         
 
 module ConstituentSet = 
+    let MAX_DT = 2 //Maximum derivative supported by tideDerivative and related functions
 
     let Create (constituents : ConstituentT<'u,'v> list) datum adjustments =
         let currentYear = 2016
@@ -218,9 +226,39 @@ module ConstituentSet =
 
                     })
         //Nasty loop to figure maxdt and maxAmplitude
+        let loop = 
+            let numYears = constituents.Head.LastValidYear - constituents.Head.FirstValidYear + 1;
+            seq {
+            for deriv in 0 .. MAX_DT + 1 do
+                for year in 0 .. numYears do
+                    yield (deriv, year)
+            }
 
-        let (maxdt, maxamplitude) =
-            [0 .. maxDeriv ] 
+        let loopBody = fun (deriv, year) -> 
+            let maxEls = 
+                constituents
+                |> List.map (fun (c : ConstituentT) -> 
+                    let node = c.Nodes.[year]
+                    let pow = Math.Pow(c.Speed
+                    c.Amplitude * node * 
+            ignore()
+
+        loop |> Seq.iter loopBody
+
+
+        let allAmps : List<List<AmplitudeT>> = 
+            let loopYear = constituents.Head.FirstValidYear
+            [ 0 .. numYears ] |> List.map ( fun _ ->
+                //Then, the inner list maps to the amplitudes in the constituents
+                constituents |> List.map ( fun constituent -> 
+                    let nodeVal = constituent.Nodes |> List.find (fun (yr, v) -> yr = loopYear) |> snd
+                    let amp = constituent.Amplitude.Value * nodeVal
+                    { Value = amp; Units = constituent.Amplitude.Units }
+                )
+            )
+
+        
+
         ignore()
 
 

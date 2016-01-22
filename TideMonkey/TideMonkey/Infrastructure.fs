@@ -51,7 +51,7 @@ type SpeedT<[<Measure>] 'u> = float<'u>
 type AmplitudeT = { Value : float; Units : PredictionUnitsT }
 
 
-type ConstituentT<[<Measure>] 'speedT, [<Measure>] 'amplitudeT> = { Name : string; Speed : SpeedT<'speedT>; FirstValidYear : Year; LastValidYear : Year; Amplitude : AmplitudeT; Phase : float<Radians> ; Args: (Year * float<Radians>) list; Nodes : (Year * float) list}
+type ConstituentT<[<Measure>] 'speedT, [<Measure>] 'amplitudeT> = { Name : string; Speed : SpeedT<'speedT>; FirstValidYear : Year; LastValidYear : Year; Amplitude : AmplitudeT; Phase : float<Radians> ; Args: (Year * float<Radians>) list; Nodes : Map<Year, float>}
 
 type IntervalT = { Duration : float<Seconds> }
 
@@ -133,6 +133,9 @@ module Geometry =
 
 module Speed = 
     let Convert (degreesPerHour : float<DegreesPerHour>) : float<RadiansPerSecond> = (degreesPerHour * Math.PI / 648000.0) * 1.0<RadiansPerSecond/DegreesPerHour>
+
+    let ToRadiansPerSecond (speed : SpeedT<T>) = 
+        match 
 
 module Constituent =    
     open Geometry
