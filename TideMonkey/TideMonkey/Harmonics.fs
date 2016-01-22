@@ -291,7 +291,7 @@ module Harmonics =
         }
 
 
-    let GetConstituents<[<Measure>] 'unitsT, [<Measure>] 'adjustmentsT> (station : StationT<'unitsT, 'unitsT, 'unitsT>) (adjustments : SimpleOffsetsT) (db : DbHeaderT) = 
+    let GetConstituents<[<Measure>] 'unitsT, [<Measure>] 'adjustmentsT> (station : StationT<'unitsT, 'unitsT>) (adjustments : SimpleOffsetsT) (db : DbHeaderT) = 
         Assert.IsTrue(fun () -> station.StationRef.IsNone)
 
 
@@ -332,10 +332,9 @@ module Harmonics =
             constituentsData
             |> Seq.filter (fun constituent -> constantsRelatingToStation |> Seq.exists (fun constant -> constant.Name = constituent.Name) )
 
-    
         let ConstituentBuilder (cd : ConstituentsDataT) constant args_degrees node_factors = 
             let name = cd.Name
-            let speed = Geometry.dph2rps cd.Speed
+            let speed = Speed.dph2rps cd.Speed
             let startYear = dbh.StartYear
             let numberOfYears = dbh.NumberOfYears
             let amplitude = { Value = constant.Amp; Units = ds.Units }
