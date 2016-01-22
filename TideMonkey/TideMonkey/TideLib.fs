@@ -94,7 +94,7 @@ module Station =
                                 (2017, 0.86690002679824829);
                                 (2018, 0.91759997606277466);
                                 (2019, 0.97610002756118774);
-                            ]
+                            ] |> Map.ofList
                     }
                 ]
 
@@ -233,25 +233,26 @@ module ConstituentSet =
                 for year in 0 .. numYears do
                     yield (deriv, year)
             }
-
+            (* TODO --- BEGIN AGAIN HERE
         let loopBody = fun (deriv, year) -> 
             let maxEls = 
                 constituents
                 |> List.map (fun (c : ConstituentT) -> 
                     let node = c.Nodes.[year]
-                    let pow = Math.Pow(c.Speed
-                    c.Amplitude * node * 
+                    let pow = Math.Pow(c.Speed, deriv)
+                    c.Amplitude * node * pow
+                    )
             ignore()
 
         loop |> Seq.iter loopBody
-
+        *)
 
         let allAmps : List<List<AmplitudeT>> = 
             let loopYear = constituents.Head.FirstValidYear
-            [ 0 .. numYears ] |> List.map ( fun _ ->
+            [ 0 .. constituents.Length ] |> List.map ( fun _ ->
                 //Then, the inner list maps to the amplitudes in the constituents
                 constituents |> List.map ( fun constituent -> 
-                    let nodeVal = constituent.Nodes |> List.find (fun (yr, v) -> yr = loopYear) |> snd
+                    let nodeVal = constituent.Nodes.[loopYear]
                     let amp = constituent.Amplitude.Value * nodeVal
                     { Value = amp; Units = constituent.Amplitude.Units }
                 )

@@ -134,8 +134,6 @@ module Geometry =
 module Speed = 
     let Convert (degreesPerHour : float<DegreesPerHour>) : float<RadiansPerSecond> = (degreesPerHour * Math.PI / 648000.0) * 1.0<RadiansPerSecond/DegreesPerHour>
 
-    let ToRadiansPerSecond (speed : SpeedT<T>) = 
-        match 
 
 module Constituent =    
     open Geometry
@@ -154,7 +152,7 @@ module Constituent =
         let args = Seq.zip years ra |> List.ofSeq
 
         Assert.IsTrue(fun () -> numberOfYears = (nodes |> List.ofSeq |> List.length) )
-        let nodes = Seq.zip years nodes |> List.ofSeq
+        let nodes = Seq.zip years nodes |> Map.ofSeq
 
         { Name = name; Speed = speed; FirstValidYear = startYear ; LastValidYear = lastValidYear; Amplitude = amplitude; Phase = phaseRadians ; Args = args; Nodes = nodes; }
 
@@ -172,7 +170,7 @@ module Constituent =
     [<Obsolete("Use NodeFactor")>]
     let nod constituent year = 
         ValidateYear constituent year
-        constituent.Nodes |> List.find (fun t -> fst(t) = year)
+        constituent.Nodes.[year]
 
     let NodeFactor constituent year = 
         nod constituent year
