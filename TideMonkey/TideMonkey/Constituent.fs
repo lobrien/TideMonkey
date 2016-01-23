@@ -15,9 +15,8 @@ type ConstituentT =
 module Constituent = 
    open Geometry
    
-   let CreateFromUntypedInputs name speedDegreesPerSecond startYear numberOfYears argsDegrees (nodes : float list) 
-       amplitude phaseDegrees = 
-      let typedSpeed = speedDegreesPerSecond * 1.0<Degrees> * 1.0<Seconds> * 3600.<Seconds> / 1.<Hours>
+   let CreateFromUntypedInputs name speedDegreesPerSecond startYear numberOfYears argsDegrees (nodes : float list) amplitude phaseDegrees = 
+      let typedSpeed = speedDegreesPerSecond * 3600.<Seconds> / 1.<Hours>
       let speed = Speed.Convert(typedSpeed)
       let lastValidYear = startYear + numberOfYears - 1
       AssertTM.IsTrue(fun () -> lastValidYear >= startYear)

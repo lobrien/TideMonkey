@@ -41,12 +41,13 @@
     <Compile Include="CLISmokeTest.fs" />
     <Compile Include="UnitsModuleTests.fs" />
     <Compile Include="SpeedModuleTests.fs" />
-    <Compile Include="AspirationalTests.fs" />
-    <Compile Include="TideMonkeyInfrastructureTests.fs" />
+    <Compile Include="ConstituentModuleTests.fs" />
+    <Compile Include="GeometryModuleTests.fs" />
     <Compile Include="SkyCalTests.fs" />
     <Compile Include="HarmonicsFileTest.fs" />
     <Compile Include="TideMonkeyLibTests.fs" />
     <Compile Include="WorkingOnTests.fs" />
+    <Compile Include="AspirationalTests.fs" />
   </ItemGroup>
   <Import Project="$(MSBuildExtensionsPath32)\..\Microsoft SDKs\F#\3.1\Framework\v4.0\Microsoft.FSharp.Targets" />
   <ItemGroup>
