@@ -20,9 +20,9 @@ module Constituent =
       let typedSpeed = speedDegreesPerSecond * 1.0<Degrees> * 1.0<Seconds> * 3600.<Seconds> / 1.<Hours>
       let speed = Speed.Convert(typedSpeed)
       let lastValidYear = startYear + numberOfYears - 1
-      Assert.IsTrue(fun () -> lastValidYear >= startYear)
+      AssertTM.IsTrue(fun () -> lastValidYear >= startYear)
       let phaseRadians = deg2rad phaseDegrees
-      Assert.IsTrue(fun () -> 
+      AssertTM.IsTrue(fun () -> 
          numberOfYears = (argsDegrees
                           |> List.ofSeq
                           |> List.length))
@@ -33,7 +33,7 @@ module Constituent =
       
       let ra = argsDegrees |> Seq.map Geometry.deg2rad
       let args = Seq.zip years ra |> Map.ofSeq
-      Assert.IsTrue(fun () -> 
+      AssertTM.IsTrue(fun () -> 
          numberOfYears = (nodes
                           |> List.ofSeq
                           |> List.length))
@@ -48,7 +48,7 @@ module Constituent =
         Nodes = nodes }
    
    let ValidateYear constituent year = 
-      Assert.IsTrue(fun () -> constituent.FirstValidYear >= year && constituent.LastValidYear >= year)
+      AssertTM.IsTrue(fun () -> constituent.FirstValidYear >= year && constituent.LastValidYear >= year)
    
    [<Obsolete("Use EquilibriumArgument")>]
    let arg constituent year = 

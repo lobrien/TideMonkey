@@ -96,7 +96,7 @@ module Harmonics =
            Amp = el.Element(xn "amp").Value |> float }
          |> Some
       with x -> 
-         Assert.LogException x
+         AssertTM.LogException x
          None
    
    let AliasesFromTableElement(el : XElement) = 
@@ -106,7 +106,7 @@ module Harmonics =
            Name = el.Element(xn "name").Value }
          |> Some
       with x -> 
-         Assert.LogException x
+         AssertTM.LogException x
          None
    
    let ReadFromFile (fileName : string) builder = 
@@ -127,7 +127,7 @@ module Harmonics =
                  |> fun f -> f * 1.0<Degrees/Hours> }
             |> Some
          with x -> 
-            Assert.LogException x
+            AssertTM.LogException x
             None)
    
    let Equilibria = 
@@ -248,7 +248,7 @@ module Harmonics =
            State = OptionEl "state" string }
          |> Some
       with x -> 
-         Assert.LogException x
+         AssertTM.LogException x
          None
    
    let DataSets = ReadFromFile datasetFile DataSetFromTableElement
@@ -260,7 +260,7 @@ module Harmonics =
               M2Phase = el.Element(xn "m2phase").Value |> float }
             |> Some
          with x -> 
-            Assert.LogException x
+            AssertTM.LogException x
             None)
    
    (*
@@ -314,7 +314,7 @@ module Harmonics =
         Nodes = node_factors }
    
    let GetConstituents (station : StationT) (adjustments : SimpleOffsetsT) (db : DbHeaderT) = 
-      Assert.IsTrue(fun () -> station.StationRef.IsNone)
+      AssertTM.IsTrue(fun () -> station.StationRef.IsNone)
    
    let StationFrom (dbh : DbHeaderT) (ds : DataSetT) (constants : ConstantsT seq) 
        (constituentsData : ConstituentsDataT seq) (simpleOffset : SimpleOffsetsT) = 
@@ -393,7 +393,7 @@ module Harmonics =
                ConstituentBuilder constituentData constant args nodes)
          |> List.ofSeq
       
-      Assert.IsTrue(fun () -> ds.Datum.IsSome)
+      AssertTM.IsTrue(fun () -> ds.Datum.IsSome)
       let datum = 
          { Amplitude = 
               { Value = ds.Datum.Value

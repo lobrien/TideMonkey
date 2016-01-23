@@ -2,7 +2,7 @@
 
 open System
 
-module Assert = 
+module AssertTM = 
    let IsTrue(fn : unit -> bool) = 
       match fn() with
       | true -> ignore()

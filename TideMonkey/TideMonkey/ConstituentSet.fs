@@ -9,9 +9,14 @@ type ConstituentSetT =
      MaxDt : AmplitudeT list
      PreferredLengthUnits : PredictionUnitsT
      mutable CurrentYear : Year
-     mutable Epoch : DateTime
+     (*
+     TODO: Mo' Functional, Mo' Betta: 
+     All of the following could be made functions whose value is dependent on CurrentYear, based 
+     on the equations in ConstituentSetT.ChangeYear()
+     *)
+     mutable Epoch : DateTime 
      mutable NextEpoch : DateTime
-     mutable Amplitudes : PredictionValueT list
+     mutable Amplitudes : PredictionValueT list //Could be a function based on CurrentYear (see ChangeYear)
      mutable Phases : float<Radians> list
       }
 
@@ -66,7 +71,7 @@ module ConstituentSet =
    let Create (constituents : ConstituentT list) (datum : PredictionValueT) adjustments = 
       let currentYear = 2016
       let preferredLengthUnits = datum.Amplitude.Units
-      Assert.IsTrue(fun () -> datum.Amplitude.Units = adjustments.LevelAdd.Amplitude.Units)
+      AssertTM.IsTrue(fun () -> datum.Amplitude.Units = adjustments.LevelAdd.Amplitude.Units)
       let adjDatum = 
          { Amplitude = 
               { Value = datum.Amplitude.Value * adjustments.LevelMultiply + adjustments.LevelAdd.Amplitude.Value
@@ -123,7 +128,7 @@ module ConstituentSet =
          match Units.IsHydraulicCurrent dtAmplitudeUnits with 
          | true ->  { Value = maxAmplitudeV; Units = Units.Flatten dtAmplitudeUnits } 
          | false -> { Value = maxAmplitudeV; Units = dtAmplitudeUnits }
-      Assert.IsTrue(fun () -> maxAmplitude.Value > 0.)
+      AssertTM.IsTrue(fun () -> maxAmplitude.Value > 0.)
 
       // Harmonics file range of years may exceed that of this platform.
       // Try valiantly to find a safe initial value.

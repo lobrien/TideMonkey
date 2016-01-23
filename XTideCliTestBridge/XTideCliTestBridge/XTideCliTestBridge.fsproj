@@ -39,6 +39,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="CLISmokeTest.fs" />
+    <Compile Include="UnitsModuleTests.fs" />
     <Compile Include="AspirationalTests.fs" />
     <Compile Include="TideMonkeyInfrastructureTests.fs" />
     <Compile Include="SkyCalTests.fs" />
