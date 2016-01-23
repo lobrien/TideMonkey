@@ -303,7 +303,7 @@ module Harmonics =
 
    let Constituent name (speed : float<Radians / Seconds>) startYear numberOfYears 
        (equilibria : (Year * float<Degrees>) list) (node_factors : Map<Year, float>) amplitude (phase : float<Degrees>) = 
-      let args = equilibria |> List.map (fun (y, d) -> (y, Geometry.deg2rad d))
+      let args = equilibria |> List.map (fun (y, d) -> (y, Geometry.deg2rad d)) |> Map.ofList
       { Name = name
         Speed = speed
         FirstValidYear = startYear
@@ -417,7 +417,7 @@ module Harmonics =
          { Constituents = constituents
            Datum = datum
            Amplitudes = []
-           Phases = 0.<Radians>
+           Phases = [ 0.<Radians> ]
            MaxAmplitude = 
               { Value = 0.
                 Units = Meters }

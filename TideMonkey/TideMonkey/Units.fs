@@ -39,6 +39,25 @@ type AmplitudeT =
 type IntervalT = 
    { Duration : float<Seconds> }
 
+module Units = 
+   let IsHydraulicCurrent u = 
+      match u with 
+      | KnotsSquared -> true
+      | Zulu -> raise <| new ArgumentOutOfRangeException()
+      | _ -> false
+
+   let IsCurrent u = 
+      match u with
+      | Knots | KnotsSquared -> true
+      | Zulu -> raise <| new ArgumentOutOfRangeException()
+      | _ -> false
+
+   let Flatten u = 
+      match u with 
+      | KnotsSquared -> Knots
+      | Zulu -> raise <| new ArgumentOutOfRangeException()
+      | _ -> u
+
 module Speed = 
    let Convert(degreesPerHour : float<Degrees / Hours>) : float<Radians / Seconds> = 
       degreesPerHour * 1.<Hours> / 3600.<Seconds> * (Math.PI * 2.<Radians>) / 360.0<Degrees>

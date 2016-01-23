@@ -50,7 +50,7 @@ module Station =
                      (2016, 2.9045769092110301<Radians>)
                      (2017, 4.6134285774384356<Radians>)
                      (2018, 6.1042890588501679<Radians>)
-                     (2019, 1.3425072286761053<Radians>) ]
+                     (2019, 1.3425072286761053<Radians>) ] |> Map.ofList
                 Nodes = 
                    [ (2015, 0.82779997587203979)
                      (2016, 0.83429998159408569)
@@ -82,7 +82,7 @@ module Station =
               [ { Amplitude = 
                      { Value = 1.0
                        Units = Feet } } ]
-           Phases = 3.0<Radians>
+           Phases = [ 3.0<Radians> ]
            MaxAmplitude = 
               { Value = 2.0
                 Units = Feet }

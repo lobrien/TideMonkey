@@ -9,7 +9,7 @@ type ConstituentT =
      LastValidYear : Year
      Amplitude : AmplitudeT
      Phase : float<Radians>
-     Args : (Year * float<Radians>) list
+     Args : Map<Year, float<Radians>>
      Nodes : Map<Year, float> }
 
 module Constituent = 
@@ -32,7 +32,7 @@ module Constituent =
          }
       
       let ra = argsDegrees |> Seq.map Geometry.deg2rad
-      let args = Seq.zip years ra |> List.ofSeq
+      let args = Seq.zip years ra |> Map.ofSeq
       Assert.IsTrue(fun () -> 
          numberOfYears = (nodes
                           |> List.ofSeq
@@ -53,8 +53,8 @@ module Constituent =
    [<Obsolete("Use EquilibriumArgument")>]
    let arg constituent year = 
       ValidateYear constituent year
-      constituent.Args |> List.find (fun t -> fst (t) = year)
-   
+      constituent.Args.[year]
+
    let EquilibriumArgument constituent year = arg constituent year
    
    [<Obsolete("Use NodeFactor")>]
