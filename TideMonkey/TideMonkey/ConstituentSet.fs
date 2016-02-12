@@ -22,31 +22,41 @@ type ConstituentSetT =
 
 module ConstituentSet = 
 
-   (* 
-
-        From XTide: tideDerivative (Interval sinceEpoch, unsigned deriv)
-     *
-     * Calculate (deriv)th time derivative of the normalized tide for time
-     * in s since the beginning (UTC) of currentYear, WITHOUT changing
-     * years or blending.
-     *
-     * Note:  This function does not check for changes in year.  This is
-     * important to our algorithm, since for times near new year's, we
-     * interpolate between the tides calculated using one year's
-     * coefficients and the next year's coefficients.
-    *)
    type ConstituentSetT with
-      member this.TideDerivative (sinceEpoch : IntervalT) (deriv : float) = 
-         (*
-            let tempd = deriv * Math.PI / 2.0 * 1.0<Radians>
-            let term (constituent : ConstituentT<Radians, _>) = 
-                let inner = tempd * constituent.Speed * sinceEpoch.Duration + constituent.Phase
-                constituent.Amplitude * cos(inner)
 
-            terms |> List.sum |> PredictionValue
-            *)
-         raise (new NotImplementedException())
+       (* 
 
+           From XTide: tideDerivative (Interval sinceEpoch, unsigned deriv)
+        *
+        * Calculate (deriv)th time derivative of the normalized tide for time
+        * in s since the beginning (UTC) of currentYear, WITHOUT changing
+        * years or blending.
+        *
+        * Note:  This function does not check for changes in year.  This is
+        * important to our algorithm, since for times near new year's, we
+        * interpolate between the tides calculated using one year's
+        * coefficients and the next year's coefficients.
+
+        * TODO: Confirm claim that "Xtide spends more time in this method than anywhere else."
+       *)
+      member this.TideDerivative (sinceEpoch : IntervalT) (deriv : int) = 
+         let tempd = (float deriv) * Math.PI / 2.0 * 1.0<Radians>
+
+         let term (amplitude : PredictionValueT, constituent : ConstituentT, phase : float<Radians>)  = 
+            let inner = float tempd * float constituent.Speed * float sinceEpoch.Duration + float phase
+            let initialTerm = amplitude.Amplitude.Value * cos(inner)
+            let mutable term = initialTerm
+            for b in deriv .. -1 .. 0 do
+               term <- term * float constituent.Speed //Speed is defined in radians/sec, which is what is desired
+            term
+
+         let predictionValue = 
+            List.zip3 this.Amplitudes this.Constituents this.Phases
+            |> List.map term
+            |> List.sum 
+         { Amplitude = { Value = predictionValue; Units = this.PreferredLengthUnits } }
+
+      
       // Update amplitudes, phases, epoch, nextEpoch, and currentYear.
       member this.ChangeYear (newYear : Year) = 
          this.CurrentYear <- newYear
@@ -108,7 +118,7 @@ module ConstituentSet =
          |> List.map (fun _ -> 0.)
          |> Array.ofList
       for deriv in [ 0..MAX_DT + 1 ] do
-         for tempYear in [ 0..numYears ] do
+         for tempYear in [ constituents.Head.FirstValidYear .. constituents.Head.LastValidYear ] do
             let max = 
                constituents
                |> List.map (fun (c : ConstituentT) -> 
@@ -157,4 +167,37 @@ module ConstituentSet =
       } 
       cs.ChangeYear currentYear
    
- 
+   (*
+
+      From XTide: 
+
+      Returns the value (deriv)th derivative of the "blending function" w(x):
+       *
+       *   w(x) =  0,     for x <= -1
+       *
+       *   w(x) =  1/2 + (15/16) x - (5/8) x^3 + (3/16) x^5,
+       *                  for  -1 < x < 1
+       *
+       *   w(x) =  1,     for x >= 1
+       *
+       * This function has the following desirable properties:
+       *
+       *    w(x) is exactly either 0 or 1 for |x| > 1
+       *
+       *    w(x), as well as its first two derivatives are continuous for all x.
+   *)
+   let BlendWeight x deriv = 
+      let x2 = x * x
+
+      match x2 > 1.0 with
+      | true -> 
+         match (deriv = 0 && x > 0.0) with
+         | true -> 1.0
+         | false -> 0.0
+      | false ->
+         match deriv with
+         | 0 -> ((3.0 * x2 - 10.0) * x2 + 15.0) * x / 16.0 + 0.5
+         | 1 -> ((x2 - 2.0) * x2 + 1.0) * (15.0/16.0)
+         | 2 -> (x2 - 1.0) * x * (15.0/4.0)
+         | _ -> raise <| new ArgumentOutOfRangeException("Expected deriv < 3; received " + deriv.ToString()) 
+

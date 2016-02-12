@@ -70,4 +70,3 @@ type ConstituentModuleTests() =
       *)
 
       Assert.AreEqual(mock, c)
-

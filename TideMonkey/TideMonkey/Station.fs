@@ -2,6 +2,7 @@
 
 open System
 open SkyCal
+open System.Xml.Linq
 
 type MetaField = 
    { Name : string
@@ -114,7 +115,7 @@ module Station =
                MaximumTimeOffset = { Duration = 2280.0<Seconds> } } ]
    
    let Named name (stations : StationT list) = stations |> List.tryFind (fun s -> s.Name = name)
-   
+
    type StationT with
       
       member this.AddSunMoonEvents (startTime : DateTime) (endTime : DateTime) = 

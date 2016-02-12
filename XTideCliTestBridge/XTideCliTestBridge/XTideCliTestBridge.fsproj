@@ -40,12 +40,14 @@
   <ItemGroup>
     <Compile Include="CLISmokeTest.fs" />
     <Compile Include="UnitsModuleTests.fs" />
+    <Compile Include="GeometryModuleTests.fs" />
     <Compile Include="SpeedModuleTests.fs" />
     <Compile Include="ConstituentModuleTests.fs" />
-    <Compile Include="GeometryModuleTests.fs" />
+    <Compile Include="ConstituentSetModuleTests.fs" />
     <Compile Include="SkyCalTests.fs" />
     <Compile Include="HarmonicsFileTest.fs" />
     <Compile Include="TideMonkeyLibTests.fs" />
+    <Compile Include="StationXmlProviderTests.fs" />
     <Compile Include="WorkingOnTests.fs" />
     <Compile Include="AspirationalTests.fs" />
   </ItemGroup>
