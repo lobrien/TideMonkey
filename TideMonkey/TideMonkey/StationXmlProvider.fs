@@ -11,32 +11,82 @@ module StationXmlProvider =
 
    type XmlConstituentT = { Name : string; Definition : string; Speed : float }
 
+   type EpochT = float
+
    type DataSetT = 
       {
+         //TIDE_STATION_HEADER
+         //See tcd.hash lines 132-142
          Index : int;
-         Name : string;
-         StationIdContext : string option;
-         StationId : string option;
+         RecordSize: int;
+         RecordType : int; //Not sure about this, but possibly 1 if ReferenceStationT, 2 if SubordinateStationT (tcd.h ln 130)
          Coordinates : CoordinatesT;
-         Timezone : string;
+         TzFile : int; //Not sure about this. TimeZoneFile, perhaps? (Same as Timezone below?)
+         Name : string;
+         
+
+         //TIDE_RECORD
+         //See tcd.h line 151 - 165
          Country : string;
-         Units : PredictionUnitsT;
-         MinimumDirection : float<Degrees> option;
-         MaximumDirection : float<Degrees> option;
-         Comments : string;
          Source : string;
          Restriction : string;
+         Comments : string;
+         Notes : string;
+         Legalese : string;
          DateImported : DateTime;
          XFields : string;
-         RefIndex : int option;
-         MinTimeAdd : string option;
-         MaxTimeAdd : string option;
-         MaxLevelMultiple : float option
+         DirectionUnits : int; //Not sure about this. Is this Radians / Degrees distinction? (If so, I've decided Degrees per MinDir MaxDir below)
+         MinimumDirection : float<Degrees> option;
+         MaximumDirection : float<Degrees> option;
+         LevelUnits: int; //Not sure about this. PredictionUnitsT maybe? (Same as Units below?) 
+         
+         Timezone : string;
+         Units : PredictionUnitsT;
          Meridian : string option; //Interesting! 
-         Datum : float option;
          OriginalName : string;
          State : string option;
+
+         StationId : string option;  //Almost always an int, but not always. eg: TEC4513
+         StationIdContext : string option;
+       
       }
+
+   type ReferenceStationT = 
+      {
+         Common : DataSetT;
+         DatumOffset : int;   //No sign of datum_offset or datumoffset in XML
+         Datum : float;
+         ZoneOffset : int;
+         ExpirationDate : DateTime;
+         MonthOnStation : int;
+         LastDateOnStation : DateTime;
+         Confidence : int;
+         Amplitudes : AmplitudeT list;
+         Epochs : EpochT list;
+      }
+
+   type SubordinateStationT = 
+      {
+         Common : DataSetT;
+         RefIndex : int;   // ReferenceStationT.Common.Index of reference station
+         MinTimeAdd : float<Hours> option;
+         MinLevelAdd : float option;
+         MinLevelMultiply : float option;
+         MaxTimeAdd : float<Hours> option;
+         MaxLevelAdd : float option;
+         MaxLevelMultiply : float option;
+         FloodBegins : float<Hours> option;
+         EbbBegins : float<Hours> option;
+      }
+
+   type TideRecordT = 
+      | SubordinateStation of SubordinateStationT
+      | ReferenceStation of ReferenceStationT
+
+   let flatten =
+      function
+      | Some a -> a
+      | None -> None
 
    let xn s = XName.Get(s)
 
@@ -92,6 +142,36 @@ module StationXmlProvider =
             | true -> None
             | false -> xel.Element(xn s).Value |> Some
 
+
+         let TryParseTimeAdd s =
+            try
+               // Regular expression. I feel so dirty.
+               let pattern = "(?'Negative'\-)?PT(?'Hours'[0-9]+H)?(?'Minutes'[0-9]+M)?"
+               let reMatch = System.Text.RegularExpressions.Regex.Match(s, pattern)
+               match reMatch.Success with
+               | true ->
+                  let sign = match reMatch.Groups.["Negative"].Success with
+                                   | true -> -1.
+                                   | false -> 1.
+                                 
+                  let hours = match reMatch.Groups.["Hours"].Success with
+                              | true -> reMatch.Groups.["Hours"].Value |> fun s -> s.Substring(0, s.Length - 1) |> float
+                              | false -> 0.
+                  let minutes = match reMatch.Groups.["Minutes"].Success with
+                                | true -> reMatch.Groups.["Minutes"].Value |> fun s -> s.Substring(0, s.Length - 1) |> float
+                                | false -> 0.
+
+                  let offset =  sign * hours + (minutes / 60.0) |> fun m -> m * 1.0<Hours> |> Some
+                  offset
+               | false ->
+                  System.Console.WriteLine("Failed to parse time offset string " + s) 
+                  None
+
+            with
+            | x -> 
+               System.Console.WriteLine(x.ToString())
+               None
+
          try
             let ix = xel.Element(xn "index").Value |> int;
             let coordinates = {
@@ -112,34 +192,86 @@ module StationXmlProvider =
 
             let dateImported = DateTime.Parse(xel.Element(xn "date_imported").Value)
 
-            (ix, {
-            Index = ix;
-            Name = xel.Element(xn "name").Value;
-            StationIdContext = TryValue "station_id_context";
-            StationId = TryValue "station_id";
-            Coordinates = coordinates;
-            Timezone = xel.Element(xn "timezone").Value;
-            Country = xel.Element(xn "country").Value;
-            Units = predictionUnits;
-            MinimumDirection = minDir;
-            MaximumDirection = maxDir;
-            Comments = xel.Element(xn "comments").Value;
-            Source = xel.Element(xn "source").Value;
-            Restriction = xel.Element(xn "restriction").Value;
-            DateImported = dateImported;
-            XFields = xel.Element(xn "xfields").Value;
-            RefIndex = TryValue "ref_index" |> Option.map int;
-            MinTimeAdd = TryValue "min_time_add";
-            MaxTimeAdd = TryValue "max_time_add";
-            MaxLevelMultiple = TryValue "max_level_multiple" |> Option.map float;
-            Meridian = TryValue "meridian"; //Interesting! 
-            Datum = TryValue "datum" |> Option.map float;
-            OriginalName = xel.Element(xn "original_name").Value;
-            State = TryValue "state";
-            })
+            let commonData : DataSetT = 
+               {
+                  Index = ix;
+                  RecordSize = -1;
+                  RecordType = -1; //But maybe 1 if Reference, 2 if Subordinate
+                  Coordinates = coordinates;
+                  TzFile = -1; 
+                  Name = xel.Element(xn "name").Value;
+                  StationId = TryValue  "station_id";
+                  StationIdContext = TryValue "station_id_context";
+                  Country = xel.Element(xn "country").Value;
+                  Source = xel.Element(xn "source").Value;
+                  Comments = xel.Element(xn "comments").Value;
+                  Restriction = xel.Element(xn "restriction").Value;
+                  Notes = "";
+                  Legalese = "";
+                  DateImported = dateImported; 
+                  XFields = xel.Element(xn "xfields").Value;
+                  DirectionUnits = -1;
+                  MinimumDirection = minDir;
+                  MaximumDirection = maxDir;
+                  LevelUnits = -1;
+                  Timezone = xel.Element(xn "timezone").Value;
+                  Units = predictionUnits;
+                  Meridian = TryValue "meridian";
+                  OriginalName = xel.Element(xn "original_name").Value;
+                  State = TryValue "state";
+               }
+
+
+            let tideRecord = 
+               match TryValue "ref_index" with
+               | None ->
+                  //Reference Station
+                  let amplitudes : List<AmplitudeT> = List.empty //TODO -- these are not in data_sets.xml, so they must be passed in. Probably map DataSetT.Index -> Amplitudes and DataSetT.Index -> Epochs
+                  let epochs : List<EpochT> = List.empty     //TODO
+
+                  ReferenceStation { 
+                     Common = commonData;
+                     DatumOffset = -1; 
+                     Datum = xel.Element(xn "datum").Value |> float;
+                     ZoneOffset = -1;     //Perhaps the calculated value of the timezone vis a vis UTC? 
+                     ExpirationDate = new DateTime(2019, 12, 31)
+                     MonthOnStation = -1;
+                     LastDateOnStation = new DateTime(1900, 1, 1)
+                     Confidence = -1;
+                     Amplitudes = amplitudes;
+                     Epochs = epochs;
+                  } 
+
+               | Some _ ->
+                  //SubordinateStation
+                  //Note: explicitness required because cannot set breakpoint on inline expression in SubordinateStation ctor
+                  let re = xel.Element(xn "ref_index").Value |> int
+                  let mta = TryValue "min_time_add"  |> Option.map TryParseTimeAdd |> flatten
+                  let mxta = TryValue "max_time_add" |> Option.map TryParseTimeAdd |> flatten
+                  let mla = TryValue "min_level_add" |> Option.map float
+                  let mlm = TryValue "min_level_multiply" |> Option.map float
+                  let mxla = TryValue "max_level_add" |> Option.map float
+                  let mxlm = TryValue "max_level_multiply" |> Option.map float
+                  let fb = TryValue "flood_begins" |> Option.map TryParseTimeAdd |> flatten
+                  let eb = TryValue "ebb_begins" |> Option.map TryParseTimeAdd |> flatten
+                  SubordinateStation {
+                     Common = commonData;
+                     RefIndex = re;
+                     MinTimeAdd = mta;
+                     MaxTimeAdd = mxta;
+                     MinLevelAdd = mla;
+                     MinLevelMultiply = mlm;
+                     MaxLevelAdd = mxla;
+                     MaxLevelMultiply = mxlm;
+                     FloodBegins = fb;
+                     EbbBegins = eb;
+                  } 
+
+
+            (ix, tideRecord)
          with
          | x -> 
-            System.Console.WriteLine(xel.ToString())
+            System.Console.WriteLine(x.ToString())
             raise <| x
 
       fromXmlPath path dataSetFromXml
@@ -187,3 +319,11 @@ module StationXmlProvider =
          let value = el.Element(xn "value").Value |> float
          ((constituentId, year), (constituentId, year, value)))
       |> Map.ofSeq
+
+
+   let EquilibriumFromYearAndFloat (eqs : Map<(int * int), (int * int * float)>) (key : (int *int)) =
+     match eqs.ContainsKey(key) with
+     | true -> Some (eqs.[key])
+     | false -> None
+
+   

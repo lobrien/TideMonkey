@@ -48,7 +48,10 @@ type StationXmlProviderTests() =
      let ds = dataSetsByIndex pathToDataSets
      Assert.IsFalse(Map.isEmpty ds)
      let d = Map.find 16144 ds
-     Assert.AreEqual("Baltimore Harbor Approach (off Sandy Point), Maryland Current", d.Name)
+     match d with
+     | ReferenceStation t ->
+        Assert.AreEqual("Baltimore Harbor Approach (off Sandy Point), Maryland Current", t.Common.Name)
+     | _ -> Assert.Fail()
 
    [<Test>]
    member x.CanLoadDrops() = 
@@ -74,3 +77,17 @@ type StationXmlProviderTests() =
       let nfs = nodeFactorsByConstituentIdAndYear pathToNodeFactors
       Assert.IsFalse(Map.isEmpty nfs)
       Assert.AreEqual((4, 2016, 1.4048), Map.find (4,2016) nfs)
+
+   (* TODO: Restore this. It uses obsolete types, so will require edits
+   [<Test>]
+   member x.CanBuildConstituent() = 
+      let cx = constituentsByName pathToConstituents |> Map.find ("OQ2-HORN")
+      let eqs = equilibriaByConstituentIdAndYear pathToEquilibria
+      let ct = buildConstituentFrom cx eqs
+      Assert.AreEqual("OOQ2-HORN", ct.Name)
+      Assert.AreEqual(1.0<Radians/Seconds>, ct.Speed)
+      Assert.AreEqual(1900,  ct.FirstValidYear)
+      Assert.AreEqual(year 1900, ct.LastValidYear)
+      Assert.AreEqual(20.0<Feet>, ct.Amplitude)
+      Assert.AreEqual(0.5<Radians>, ct.Phase)
+  *)
