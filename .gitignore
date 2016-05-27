@@ -14,3 +14,6 @@ Xtide/xtide-2.14/.idea
 Xtide/xtide-2.14/CMakeLists.txt
 Xtide/xtide-2.14/config.log
 Xtide/libXaw3dXft-1.6.2d
+.idea
+Xtide/libtcd-2.2.7/CMakeLists.txt
+HarmonicsFileDumper

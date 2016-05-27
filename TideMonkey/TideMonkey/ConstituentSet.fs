@@ -73,7 +73,11 @@ module ConstituentSet =
          // per -k'.
          this.Phases <-
             this.Constituents 
-            |> List.map (fun constituent -> constituent.Phase + constituent.Args.[this.CurrentYear] )
+            |> List.map (fun constituent -> 
+               let argForYear = constituent.Args.[this.CurrentYear]
+               let phase = constituent.Phase
+               phase + argForYear 
+               )
          this
 
    let MAX_DT = 2 //Maximum derivative supported by tideDerivative and related functions

@@ -128,7 +128,7 @@ module StationXmlProvider =
          { 
             XmlConstituentT.Name = xel.Element(xn "name").Value;
             Definition = xel.Element(xn "definition").Value;
-            //TODO: Double-check to see if this is constant in DB, e.g radians / hour
+            //TODO: Double-check to see if this is constant in DB, e.g radians / hour (ConstituentT needs these to be radians/second)
             Speed = xel.Element(xn "speed").Value |> float;
          }
          )
@@ -326,4 +326,25 @@ module StationXmlProvider =
      | true -> Some (eqs.[key])
      | false -> None
 
-   
+   let buildConstituentFrom (cx : XmlConstituentT) (eqs : Map<(int * int), (int * int * float)>) amplitude phase args nodes : ConstituentT = 
+      let name = cx.Name
+      let speed = cx.Speed * 1.0<Radians>/3600.0<Seconds> //TODO: Confirm units!
+      let duration = eqs.Count
+      let (startYear, lastValidYear) = 
+         eqs 
+         |> Map.toSeq 
+         |> Seq.map (fun (ks, _) -> ks)
+         |> Seq.map (fun (consituentId, year) -> year)
+         |> Seq.sort
+         |> List.ofSeq
+         |> fun s -> (List.head s, List.rev s |> List.head)
+
+      { Name = name
+        Speed = speed 
+        FirstValidYear = startYear
+        LastValidYear = lastValidYear
+        Amplitude = amplitude
+        Phase = phase
+        Args = args
+        Nodes = nodes }
+      

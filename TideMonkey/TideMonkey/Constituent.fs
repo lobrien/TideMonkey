@@ -8,19 +8,18 @@ type ConstituentT =
      FirstValidYear : Year
      LastValidYear : Year
      Amplitude : AmplitudeT
-     Phase : float<Radians>
+     Phase :float<Radians>
      Args : Map<Year, float<Radians>>
      Nodes : Map<Year, float> }
 
 module Constituent = 
    open Geometry
    
-   let CreateFromUntypedInputs name speedDegreesPerSecond startYear numberOfYears argsDegrees (nodes : float list) amplitude phaseDegrees = 
+   let CreateFromUntypedInputs name speedDegreesPerSecond startYear numberOfYears argsDegrees (nodes : float list) amplitude phaseRadians = 
       let typedSpeed = speedDegreesPerSecond * 3600.<Seconds> / 1.<Hours>
       let speed = Speed.Convert(typedSpeed)
       let lastValidYear = startYear + numberOfYears - 1
       AssertTM.IsTrue(fun () -> lastValidYear >= startYear)
-      let phaseRadians = deg2rad phaseDegrees
       AssertTM.IsTrue(fun () -> 
          numberOfYears = (argsDegrees
                           |> List.ofSeq
@@ -63,4 +62,3 @@ module Constituent =
    
    let NodeFactor constituent year = nod constituent year
 
-  
