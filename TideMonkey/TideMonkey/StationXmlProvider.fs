@@ -9,7 +9,7 @@ module StationXmlProvider =
    //Note that AmplitudeT.Units is not in XML
    type ConstantT = { Index : int; Name : string; Phase : float<Radians>; AmplitudeValue : float }
 
-   type XmlConstituentT = { Name : string; Definition : string; Speed : float }
+   type XmlConstituentT = { Name : string; Definition : string; Speed : float<Radians/Seconds> }
 
    type EpochT = float
 
@@ -128,8 +128,8 @@ module StationXmlProvider =
          { 
             XmlConstituentT.Name = xel.Element(xn "name").Value;
             Definition = xel.Element(xn "definition").Value;
-            //TODO: Double-check to see if this is constant in DB, e.g radians / hour (ConstituentT needs these to be radians/second)
-            Speed = xel.Element(xn "speed").Value |> float;
+            //According to http://www.flaterco.com/xtide/libtcd.html the speed is in degrees per hour. ConstituentT needs them to be in radians per hour
+            Speed = xel.Element(xn "speed").Value |> float |> fun f -> f * (Math.PI * 2.0<Radians>) / 360.0 * 1.0/1.0<Hours> * 1.0<Hours>/3600.0<Seconds>;
          }
          )
 
@@ -328,7 +328,7 @@ module StationXmlProvider =
 
    let buildConstituentFrom (cx : XmlConstituentT) (eqs : Map<(int * int), (int * int * float)>) amplitude phase args nodes : ConstituentT = 
       let name = cx.Name
-      let speed = cx.Speed * 1.0<Radians>/3600.0<Seconds> //TODO: Confirm units!
+      let speed = cx.Speed
       let duration = eqs.Count
       let (startYear, lastValidYear) = 
          eqs 
@@ -348,3 +348,11 @@ module StationXmlProvider =
         Args = args
         Nodes = nodes }
       
+   let equilibriaForConstituents (cs : Map<string, XmlConstituentT>) (eqs : Map<(int * int), (int * int * float)>) = 
+      let t = 
+         eqs 
+         |> Seq.map (fun kv -> kv.Value)
+         |> Seq.groupBy (fun (idx, _, _) -> idx) 
+         |> List.ofSeq
+
+      raise <| new System.NotImplementedException()

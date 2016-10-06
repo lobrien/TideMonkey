@@ -52,9 +52,9 @@ type ConstituentModuleTests() =
          ]
 
       let amplitude = { Value = 0.035999998450279236; Units = PredictionUnitsT.Feet }
-      let phaseDegrees = 90.0<Degrees>
+      let phaseRadians = 90.0<Degrees> |> Geometry.deg2rad
 
-      let c = Constituent.CreateFromUntypedInputs name speedDegreesPerSecond startYear numberOfYears argsDegrees nodes amplitude phaseDegrees
+      let c = Constituent.CreateFromUntypedInputs name speedDegreesPerSecond startYear numberOfYears argsDegrees nodes amplitude phaseRadians
 
       Assert.AreEqual(mock.Name, c.Name)
       Assert.AreEqual(mock.Speed, c.Speed)

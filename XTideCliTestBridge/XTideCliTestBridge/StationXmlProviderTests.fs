@@ -3,6 +3,8 @@ open System
 open NUnit.Framework
 open TideMonkey
 open TideMonkey.StationXmlProvider
+open Units
+
 
 [<TestFixture>]
 type StationXmlProviderTests() = 
@@ -15,6 +17,11 @@ type StationXmlProviderTests() =
    let pathToRefs2014 = pathToHarmonicsFiles + "refs2014.xml"
    let pathToEquilibria = pathToHarmonicsFiles + "equilibria.xml"
    let pathToNodeFactors = pathToHarmonicsFiles + "node_factors.xml"
+
+   let DPH2RPS degreesPerHour = degreesPerHour * (Math.PI * 2.0) / 360.0 / 3600.0
+
+
+
 
    [<Test>]
    member x.CanLoadAliases() =
@@ -40,8 +47,8 @@ type StationXmlProviderTests() =
       Assert.IsFalse(Map.isEmpty cs)
       let c = cs |> Map.find ("OQ2-HORN")
       Assert.AreEqual("Compound 1 0 0 0 0 0 0 0 1", c.Definition)
-      //Note: No values (double check to see if this is constant across database -- radians / hour perhaps?)
-      Assert.AreEqual(27.3416965, c.Speed)
+      //Note: c.Speed is Radians/Second while cs.Speed is Degrees/Hour
+      Assert.IsTrue(Math.Abs(0.000132556285279447 - (float) c.Speed) <= 0.00001)
 
    [<Test>]
    member x.CanLoadDataSets() = 
@@ -78,16 +85,32 @@ type StationXmlProviderTests() =
       Assert.IsFalse(Map.isEmpty nfs)
       Assert.AreEqual((4, 2016, 1.4048), Map.find (4,2016) nfs)
 
-   (* TODO: Restore this. It uses obsolete types, so will require edits
+   [<Test>]
+   member x.CanAssociateConstituentsAndEquilibria() = 
+      let cx = constituentsByName pathToConstituents
+      let eqs = equilibriaByConstituentIdAndYear pathToEquilibria
+      let e4c = equilibriaForConstituents cx eqs
+      Assert.IsNotNull(e4c)
+
    [<Test>]
    member x.CanBuildConstituent() = 
       let cx = constituentsByName pathToConstituents |> Map.find ("OQ2-HORN")
       let eqs = equilibriaByConstituentIdAndYear pathToEquilibria
-      let ct = buildConstituentFrom cx eqs
-      Assert.AreEqual("OOQ2-HORN", ct.Name)
-      Assert.AreEqual(1.0<Radians/Seconds>, ct.Speed)
-      Assert.AreEqual(1900,  ct.FirstValidYear)
-      Assert.AreEqual(year 1900, ct.LastValidYear)
-      Assert.AreEqual(20.0<Feet>, ct.Amplitude)
+      //Comes from Station / TideRecord .Amplitude field
+      let amp = { Value = 20.0;
+        Units = PredictionUnitsT.Feet }
+      //Comes from TideRecord.epoch field (from year)
+      let phase = 0.5<Radians> 
+      //Comes from HamonicsFile.get_equilibriums
+      let args = [| (2015, 0.5<Radians>) |] |> Map.ofSeq
+      //Comes from HarmonicsFile.get_node_factors
+      let nodes = [| (2015, 0.5) |] |> Map.ofSeq
+
+      let ct = buildConstituentFrom cx eqs amp phase args nodes
+      Assert.AreEqual(cx.Name, ct.Name)
+      Assert.IsTrue( Math.Abs( (float) 0.00759491569444444<Radians/Seconds> - (float) ct.Speed) <= 0.0001) //TODO: Confirm! Should cx.Speed == ct.Speed? Is this Radians/Sec or Degs/Hour or what? 
+      Assert.AreEqual(2015,  ct.FirstValidYear)
+      Assert.AreEqual(2019, ct.LastValidYear)
+      Assert.AreEqual({ Value = 20.0; Units = PredictionUnitsT.Feet }, ct.Amplitude)
       Assert.AreEqual(0.5<Radians>, ct.Phase)
-  *)
+  
