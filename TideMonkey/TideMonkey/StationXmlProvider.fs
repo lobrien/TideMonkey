@@ -128,7 +128,7 @@ module StationXmlProvider =
          { 
             XmlConstituentT.Name = xel.Element(xn "name").Value;
             Definition = xel.Element(xn "definition").Value;
-            //According to http://www.flaterco.com/xtide/libtcd.html the speed is in degrees per hour. ConstituentT needs them to be in radians per hour
+            //According to http://www.flaterco.com/xtide/libtcd.html the speed is in degrees per hour. ConstituentT needs them to be in radians per second
             Speed = xel.Element(xn "speed").Value |> float |> fun f -> f * (Math.PI * 2.0<Radians>) / 360.0 * 1.0/1.0<Hours> * 1.0<Hours>/3600.0<Seconds>;
          }
          )

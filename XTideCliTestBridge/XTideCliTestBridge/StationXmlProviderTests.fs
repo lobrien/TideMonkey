@@ -108,7 +108,7 @@ type StationXmlProviderTests() =
 
       let ct = buildConstituentFrom cx eqs amp phase args nodes
       Assert.AreEqual(cx.Name, ct.Name)
-      Assert.IsTrue( Math.Abs( (float) 0.00759491569444444<Radians/Seconds> - (float) ct.Speed) <= 0.0001) //TODO: Confirm! Should cx.Speed == ct.Speed? Is this Radians/Sec or Degs/Hour or what? 
+      Assert.IsTrue( Math.Abs( (float) 0.000132556285279447<Radians/Seconds> - (float) ct.Speed) <= 0.0001) 
       Assert.AreEqual(2015,  ct.FirstValidYear)
       Assert.AreEqual(2019, ct.LastValidYear)
       Assert.AreEqual({ Value = 20.0; Units = PredictionUnitsT.Feet }, ct.Amplitude)
