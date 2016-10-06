@@ -9,9 +9,11 @@ module StationXmlProvider =
    //Note that AmplitudeT.Units is not in XML
    type ConstantT = { Index : int; Name : string; Phase : float<Radians>; AmplitudeValue : float }
 
-   type XmlConstituentT = { Name : string; Definition : string; Speed : float<Radians/Seconds> }
+   type EquilibriaT = Map<YearT,float>
 
-   type EpochT = float
+   type XmlConstituentAndEquilibriaT = { Name : string; Definition : string; Speed : float<Radians/Seconds>; Equilibria : EquilibriaT }
+
+   type EpochT = EpochT of float
 
    type DataSetT = 
       {
@@ -121,19 +123,25 @@ module StationXmlProvider =
 
    let constantsByIndex path = fromXmlPath path constantFromXml
 
-   let constituentsByName path = 
-      let constituentFromXml (xel : XElement) = 
-         (
-         xel.Element(xn "name").Value,
-         { 
-            XmlConstituentT.Name = xel.Element(xn "name").Value;
-            Definition = xel.Element(xn "definition").Value;
-            //According to http://www.flaterco.com/xtide/libtcd.html the speed is in degrees per hour. ConstituentT needs them to be in radians per second
-            Speed = xel.Element(xn "speed").Value |> float |> fun f -> f * (Math.PI * 2.0<Radians>) / 360.0 * 1.0/1.0<Hours> * 1.0<Hours>/3600.0<Seconds>;
-         }
-         )
+   let constituentsAndEquilibriaByName (path : string) =
+      let equilibriumFrom (el : XElement) = 
+         let year = el.Element(xn "year").Value |> int |> YearT
+         let value = el.Element(xn "value").Value |> float
+         (year, value)
 
-      fromXmlPath path constituentFromXml
+      let constituentAndEquilibriaFrom (el : XElement) = 
+         let eqEls = el.Elements(xn "equilibrium")
+         let equilibria = eqEls |> Seq.map equilibriumFrom |> Map.ofSeq
+         let name = el.Element(xn "name").Value
+         let speed = el.Element(xn "speed").Value |> float |> fun f -> f * (Math.PI * 2.0<Radians>) / 360.0 * 1.0/1.0<Hours> * 1.0<Hours>/3600.0<Seconds>
+         let defn = el.Element(xn "definition").Value
+         { XmlConstituentAndEquilibriaT.Name = name; Definition = defn; Speed = speed; Equilibria = equilibria }
+
+      let xdoc = XDocument.Load(path)
+      xdoc.Root.Elements(xn "Constituent")
+      |> Seq.map constituentAndEquilibriaFrom 
+      |> Seq.map (fun t -> (t.Name, t)) 
+      |> Map.ofSeq
 
    let dataSetsByIndex path = 
       let dataSetFromXml (xel : XElement) = 
@@ -297,18 +305,6 @@ module StationXmlProvider =
       
       fromXmlPath path phaseFromXml
 
-   let equilibriaByConstituentIdAndYear (path : string) = 
-      let xdoc = XDocument.Load(path)
-      let es = xdoc.Descendants(xn "equilibrium")
-      es 
-      |> Seq.map (fun el -> 
-         let constituentId = el.Element(xn "constituent").Value |> int
-         let year = el.Element(xn "year").Value |> int
-         let value = el.Element(xn "value").Value |> float
-         ((constituentId, year), (constituentId, year, value)))
-      |> Map.ofSeq
-
-
    let nodeFactorsByConstituentIdAndYear (path : string) = 
       let xdoc = XDocument.Load(path)
       let es = xdoc.Descendants(xn "node_factor")
@@ -320,21 +316,14 @@ module StationXmlProvider =
          ((constituentId, year), (constituentId, year, value)))
       |> Map.ofSeq
 
-
-   let EquilibriumFromYearAndFloat (eqs : Map<(int * int), (int * int * float)>) (key : (int *int)) =
-     match eqs.ContainsKey(key) with
-     | true -> Some (eqs.[key])
-     | false -> None
-
-   let buildConstituentFrom (cx : XmlConstituentT) (eqs : Map<(int * int), (int * int * float)>) amplitude phase args nodes : ConstituentT = 
+   let buildConstituentFrom (cx : XmlConstituentAndEquilibriaT) amplitude phase args nodes : ConstituentT = 
       let name = cx.Name
       let speed = cx.Speed
-      let duration = eqs.Count
+      let duration = cx.Equilibria.Count
       let (startYear, lastValidYear) = 
-         eqs 
+         cx.Equilibria  
          |> Map.toSeq 
-         |> Seq.map (fun (ks, _) -> ks)
-         |> Seq.map (fun (consituentId, year) -> year)
+         |> Seq.map (fun (year, _) -> year)
          |> Seq.sort
          |> List.ofSeq
          |> fun s -> (List.head s, List.rev s |> List.head)
@@ -348,11 +337,3 @@ module StationXmlProvider =
         Args = args
         Nodes = nodes }
       
-   let equilibriaForConstituents (cs : Map<string, XmlConstituentT>) (eqs : Map<(int * int), (int * int * float)>) = 
-      let t = 
-         eqs 
-         |> Seq.map (fun kv -> kv.Value)
-         |> Seq.groupBy (fun (idx, _, _) -> idx) 
-         |> List.ofSeq
-
-      raise <| new System.NotImplementedException()

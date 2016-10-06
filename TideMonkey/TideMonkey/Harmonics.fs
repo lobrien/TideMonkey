@@ -61,27 +61,25 @@ type RefT =
      M2Phase : float }
 
 type DbHeaderT = 
-   { StartYear : int //1700 (2015)
+   { StartYear : YearT //1700 (2015)
      NumberOfYears : int //401 (4)
                          }
 
 type EquilibriumT = 
    { Constituent : int
-     Year : Year
+     Year : YearT
      Value : float<Degrees> }
 
 type NodeFactorT = 
    { Constituent : int
-     Year : Year
+     Year : YearT
      Value : float }
 
 module Harmonics = 
    let aliasesFile = "Resources/Harmonics/aliases.xml"
    let constantsFile = "Resources/Harmonics/constants.xml"
-   let constituentsFile = "Resources/Harmonics/constituents.xml"
    let datasetFile = "Resources/Harmonics/data_sets.xml"
    let refsFile = "Resources/Harmonics/refs2014.xml"
-   let equilibriaFile = "Resources/Harmonics/equilibria.xml"
    let nodeFactorsFile = "Resources/Harmonics/node_factors.xml"
    let xn s = XName.Get s
    
@@ -115,38 +113,7 @@ module Harmonics =
    
    let Aliases = ReadFromFile aliasesFile AliasesFromTableElement
    let Constants = ReadFromFile constantsFile ConstantsFromTableElement
-   
-   let Constituents = 
-      ReadFromFile constituentsFile (fun el -> 
-         try 
-            { Name = el.Element(xn "name").Value
-              Definition = el.Element(xn "definition").Value
-              Speed = 
-                 el.Element(xn "speed").Value
-                 |> float
-                 |> fun f -> f * 1.0<Degrees/Hours> }
-            |> Some
-         with x -> 
-            AssertTM.LogException x
-            None)
-   
-   let Equilibria = 
-      ReadFromFile equilibriaFile (fun el -> 
-         { EquilibriumT.Constituent = el.Element(xn "constituent").Value |> int
-           Year = el.Element(xn "year").Value |> int
-           Value = 
-              el.Element(xn "value").Value
-              |> float
-              |> fun f -> f * 1.0<Degrees> })
-      |> Seq.zip Constituents
-   
-   let NodeFactors = 
-      ReadFromFile nodeFactorsFile (fun el -> 
-         { NodeFactorT.Constituent = el.Element(xn "constituent").Value |> int
-           Year = el.Element(xn "year").Value |> int
-           Value = el.Element(xn "value").Value |> float })
-      |> Seq.zip Constituents
-   
+
    let PredictionUnits(s : string) = 
       match s.ToLower() with
       | "meters" -> Meters
@@ -302,12 +269,12 @@ module Harmonics =
     *)
 
    let Constituent name (speed : float<Radians / Seconds>) startYear numberOfYears 
-       (equilibria : (Year * float<Degrees>) list) (node_factors : Map<Year, float>) amplitude (phase : float<Degrees>) = 
+       (equilibria : (YearT * float<Degrees>) list) (node_factors : Map<YearT, float>) amplitude (phase : float<Degrees>) = 
       let args = equilibria |> List.map (fun (y, d) -> (y, Geometry.deg2rad d)) |> Map.ofList
       { Name = name
         Speed = speed
         FirstValidYear = startYear
-        LastValidYear = startYear + numberOfYears
+        LastValidYear = ((startYear |> Year.value) + numberOfYears) |> YearT
         Amplitude = amplitude
         Phase = Geometry.deg2rad phase
         Args = args
@@ -316,129 +283,4 @@ module Harmonics =
    let GetConstituents (station : StationT) (adjustments : SimpleOffsetsT) (db : DbHeaderT) = 
       AssertTM.IsTrue(fun () -> station.StationRef.IsNone)
    
-   let StationFrom (dbh : DbHeaderT) (ds : DataSetT) (constants : ConstantsT seq) 
-       (constituentsData : ConstituentsDataT seq) (simpleOffset : SimpleOffsetsT) = 
-      let name = ds.Name
-      let coordinate = ds.Coordinates
-      let timezone = ds.Timezone
-      let note = ds.Notes
-      //TODO: Verify this
-      let isReferenceStation = ds.RefIndex.IsNone
-      
-      let stationTypePrefix = 
-         match isReferenceStation with
-         | true -> "Reference station, "
-         | false -> "Subordinate station, "
-      
-      let isCurrent = ds.Units = Knots || ds.Units = KnotsSquared
-      let isHydraulicCurrent = ds.Units = KnotsSquared
-      
-      let stationTypeText = 
-         stationTypePrefix + match (isCurrent, isHydraulicCurrent) with
-                             | (false, _) -> "tide"
-                             | (true, true) -> "hydraulic current"
-                             | (true, false) -> "current"
-      
-      let minCurrentBearing = ds.MinDir
-      let maxCurrentBearing = ds.MaxDir
-      let step = None
-      let stationRef = None
-      let metadata = None
-      //constituents are only in reference
-      let constantsRelatingToStation = constants |> Seq.filter (fun c -> c.Index = ds.Index)
-      let cdRelatingToConstants = 
-         constituentsData 
-         |> Seq.filter 
-               (fun constituent -> 
-               constantsRelatingToStation |> Seq.exists (fun constant -> constant.Name = constituent.Name))
-      
-      let ConstituentBuilder (cd : ConstituentsDataT) constant args_degrees node_factors = 
-         let name = cd.Name
-         let speed = Speed.Convert cd.Speed
-         let startYear = dbh.StartYear
-         let numberOfYears = dbh.NumberOfYears
-         
-         let amplitude = 
-            { Value = constant.Amp
-              Units = ds.Units }
-         
-         let phase = constant.Phase
-         Constituent name speed startYear numberOfYears args_degrees node_factors amplitude phase
-      
-      let ArgsBuilder(constituent : ConstituentsDataT) = 
-         let equilibrium = 
-            Equilibria
-            |> Seq.filter (fun (c, _) -> c.IsSome && c.Value.Name = constituent.Name)
-            |> Seq.map snd
-         equilibrium |> Seq.map (fun e -> (e.Year, e.Value))
-      
-      let NodesBuilder(constituent : ConstituentsDataT) = 
-         let node_factors = 
-            NodeFactors
-            |> Seq.filter (fun (c, _) -> c.IsSome && c.Value.Name = constituent.Name)
-            |> Seq.map snd
-            |> Seq.map (fun t -> (t.Year, t.Value))
-            |> Map.ofSeq
-         node_factors
-      
-      let constituents = 
-         cdRelatingToConstants
-         |> Seq.map (fun cd -> 
-               constantsRelatingToStation
-               |> Seq.find (fun constant -> constant.Name = cd.Name)
-               |> fun constant -> (cd, constant))
-         |> Seq.map (fun (constituentData, constant) -> 
-               let args = ArgsBuilder constituentData |> List.ofSeq
-               let nodes = NodesBuilder constituentData
-               ConstituentBuilder constituentData constant args nodes)
-         |> List.ofSeq
-      
-      AssertTM.IsTrue(fun () -> ds.Datum.IsSome)
-      let datum = 
-         { Amplitude = 
-              { Value = ds.Datum.Value
-                Units = ds.Units } }
-      
-      // Normalize the meridian to UTC.
-      // To compensate for a negative meridian requires a positive offset.
-      // (This adjustment is combined with any that were passed in.)
-      // This is the only place where mutable offsets would make even a
-      // little bit of sense.
-      let intervalDelta = -0.0<Seconds> //TODO: Where can I get timezone offset for record? 
-      let ta = simpleOffset.TimeAdd.Duration + intervalDelta
-      
-      let adjustments = 
-         { TimeAdd = { Duration = ta }
-           LevelAdd = simpleOffset.LevelAdd
-           LevelMultiply = simpleOffset.LevelMultiply }
-      
-      //TODO: GARBAGE GARBAGE GARBAGE
-      let constituentSet = 
-         { Constituents = constituents
-           Datum = datum
-           Amplitudes = []
-           Phases = [ 0.<Radians> ]
-           MaxAmplitude = 
-              { Value = 0.
-                Units = Meters }
-           MaxDt = []
-           CurrentYear = 2016
-           Epoch = new DateTime(2016, 1, 1)
-           NextEpoch = new DateTime(2016, 1, 1)
-           PreferredLengthUnits = Meters }
-      
-      let minimumTimeOffset = { Duration = 0.0<Seconds> } //TODO
-      let maximumTimeOffset = { Duration = 0.0<Seconds> } //TODO
-      { Name = name
-        Coordinates = coordinate
-        Timezone = timezone
-        Note = note
-        IsCurrent = isCurrent
-        MinCurrentBearing = minCurrentBearing
-        MaxCurrentBearing = maxCurrentBearing
-        Step = step
-        StationRef = stationRef
-        Metadata = metadata
-        ConstituentSet = constituentSet
-        MinimumTimeOffset = minimumTimeOffset
-        MaximumTimeOffset = maximumTimeOffset }
+  

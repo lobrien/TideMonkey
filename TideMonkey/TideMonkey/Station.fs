@@ -44,20 +44,20 @@ module Station =
                    { Value = 0.035999998450279236
                      Units = Feet }
                 Phase = -4.2812927084053118<Radians>
-                FirstValidYear = 2015
-                LastValidYear = 2019
+                FirstValidYear = YearT 2015
+                LastValidYear = YearT 2019
                 Args = 
-                   [ (2015, 1.4552554823759725<Radians>)
-                     (2016, 2.9045769092110301<Radians>)
-                     (2017, 4.6134285774384356<Radians>)
-                     (2018, 6.1042890588501679<Radians>)
-                     (2019, 1.3425072286761053<Radians>) ] |> Map.ofList
+                   [ (YearT 2015, 1.4552554823759725<Radians>)
+                     (YearT 2016, 2.9045769092110301<Radians>)
+                     (YearT 2017, 4.6134285774384356<Radians>)
+                     (YearT 2018, 6.1042890588501679<Radians>)
+                     (YearT 2019, 1.3425072286761053<Radians>) ] |> Map.ofList
                 Nodes = 
-                   [ (2015, 0.82779997587203979)
-                     (2016, 0.83429998159408569)
-                     (2017, 0.86690002679824829)
-                     (2018, 0.91759997606277466)
-                     (2019, 0.97610002756118774) ]
+                   [ (YearT 2015, 0.82779997587203979)
+                     (YearT 2016, 0.83429998159408569)
+                     (YearT 2017, 0.86690002679824829)
+                     (YearT 2018, 0.91759997606277466)
+                     (YearT 2019, 0.97610002756118774) ]
                    |> Map.ofList } ]
          
          let datum = 
@@ -90,7 +90,7 @@ module Station =
            MaxDt = 
               [ { Value = 1.0
                   Units = Feet } ]
-           CurrentYear = 2016
+           CurrentYear = YearT 2016
            Epoch = new DateTime(1970, 1, 1)
            NextEpoch = new DateTime(2525, 1, 1)
            PreferredLengthUnits = Feet }

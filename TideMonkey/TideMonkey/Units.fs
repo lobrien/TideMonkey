@@ -27,7 +27,7 @@ type Seconds
 [<Measure>]
 type Hours
 
-type Year = int
+type YearT = YearT of int
 
 // Speed:  angular units over time units.
 type SpeedT = float<Radians / Seconds>

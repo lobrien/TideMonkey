@@ -8,7 +8,7 @@ type ConstituentSetT =
      MaxAmplitude : AmplitudeT
      MaxDt : AmplitudeT list
      PreferredLengthUnits : PredictionUnitsT
-     mutable CurrentYear : Year
+     mutable CurrentYear : YearT
      (*
      TODO: Mo' Functional, Mo' Betta: 
      All of the following could be made functions whose value is dependent on CurrentYear, based 
@@ -58,7 +58,7 @@ module ConstituentSet =
 
       
       // Update amplitudes, phases, epoch, nextEpoch, and currentYear.
-      member this.ChangeYear (newYear : Year) = 
+      member this.ChangeYear (newYear : YearT) = 
          this.CurrentYear <- newYear
 
          // Apply node factor.
@@ -112,7 +112,7 @@ module ConstituentSet =
          |> List.ofSeq
       
       //Nasty loop to figure maxdt and maxAmplitude
-      let numYears = constituents.Head.LastValidYear - constituents.Head.FirstValidYear + 1
+      let numYears = (constituents.Head.LastValidYear |> Year.value) - (constituents.Head.FirstValidYear |> Year.value) + 1
       let dtAmplitudeUnits = constituents.Head.Amplitude.Units
       //Assert( all constituents have the same units)
 
@@ -122,11 +122,11 @@ module ConstituentSet =
          |> List.map (fun _ -> 0.)
          |> Array.ofList
       for deriv in [ 0..MAX_DT + 1 ] do
-         for tempYear in [ constituents.Head.FirstValidYear .. constituents.Head.LastValidYear ] do
+         for tempYear in [ constituents.Head.FirstValidYear |> Year.value .. constituents.Head.LastValidYear |> Year.value ] do
             let max = 
                constituents
                |> List.map (fun (c : ConstituentT) -> 
-                     let node = c.Nodes.[tempYear]
+                     let node = c.Nodes.[YearT tempYear]
                      //c.Speed is radians per second
                      let pow = Math.Pow(float c.Speed, float deriv)
                      c.Amplitude.Value * node * pow)
@@ -146,14 +146,14 @@ module ConstituentSet =
 
       // Harmonics file range of years may exceed that of this platform.
       // Try valiantly to find a safe initial value.
-      let currentYear : Year = 
+      let currentYear : YearT = 
          let b = constituents.Head.FirstValidYear
          let e = constituents.Head.LastValidYear
          match (b, e) with 
-         | (b,e) when b < 2000 && e >= 2000 -> 2000
-         | (b,e) when b <= 1970 && e >= 1970 -> 1970
-         | (b,e) when b <= 2037 && e >= 2037 -> 2037
-         | _ -> (b + e) / 2
+         | (b,e) when b < YearT 2000 && e >= YearT 2000 -> YearT 2000
+         | (b,e) when b <= YearT 1970 && e >= YearT 1970 -> YearT 1970
+         | (b,e) when b <= YearT 2037 && e >= YearT 2037 -> YearT 2037
+         | _ -> YearT (( (b |> Year.value) + (e |> Year.value)) / 2)
 
            
       let cs = 
@@ -163,7 +163,7 @@ module ConstituentSet =
             MaxDt = maxDt;
             PreferredLengthUnits = preferredLengthUnits;
 
-            CurrentYear  = 0; //? Modified below
+            CurrentYear  = YearT 0; //? Modified below
             Epoch = new DateTime();
             NextEpoch = new DateTime();
             Amplitudes = List.init constituents.Length (fun _ -> { Amplitude =  { Value = 0.; Units = preferredLengthUnits } });

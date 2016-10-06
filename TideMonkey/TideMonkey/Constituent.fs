@@ -5,12 +5,12 @@ open System
 type ConstituentT = 
    { Name : string
      Speed : SpeedT
-     FirstValidYear : Year
-     LastValidYear : Year
+     FirstValidYear : YearT
+     LastValidYear : YearT
      Amplitude : AmplitudeT
      Phase :float<Radians>
-     Args : Map<Year, float<Radians>>
-     Nodes : Map<Year, float> }
+     Args : Map<YearT, float<Radians>>
+     Nodes : Map<YearT, float> }
 
 module Constituent = 
    open Geometry
@@ -24,9 +24,9 @@ module Constituent =
          numberOfYears = (argsDegrees
                           |> List.ofSeq
                           |> List.length))
-      let years : Year seq = 
+      let years : YearT seq = 
          seq { 
-            for yr in startYear..(startYear + numberOfYears) -> yr
+            for yr in startYear..(startYear + numberOfYears) -> yr |> YearT
          }
       
       let ra = argsDegrees |> Seq.map Geometry.deg2rad
@@ -38,8 +38,8 @@ module Constituent =
       let nodes = Seq.zip years nodes |> Map.ofSeq
       { Name = name
         Speed = speed
-        FirstValidYear = startYear
-        LastValidYear = lastValidYear
+        FirstValidYear = YearT startYear
+        LastValidYear = YearT lastValidYear
         Amplitude = amplitude
         Phase = phaseRadians
         Args = args
@@ -62,3 +62,6 @@ module Constituent =
    
    let NodeFactor constituent year = nod constituent year
 
+
+module Year = 
+   let value (YearT y) = y
